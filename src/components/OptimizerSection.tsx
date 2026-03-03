@@ -2,14 +2,14 @@
 
 import React, { useRef, useState } from "react";
 import { ScoreDisplay } from "./ScoreDisplay";
-import { KeywordPanel } from "./KeywordPanel";
+import { KeywordPanel, MissingKeyword } from "./KeywordPanel";
 import { ResumeEditor, ResumeEditorHandle } from "./ResumeEditor";
 import { Download, ArrowLeft } from "lucide-react";
 
 interface AnalysisResult {
   ats_score: number;
   domain_score: number;
-  missing_keywords: string[];
+  missing_keywords: MissingKeyword[];
   resumeHTML: string;
 }
 
@@ -24,17 +24,17 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
 }) => {
   const editorRef = useRef<ResumeEditorHandle>(null);
   const [atsScore, setAtsScore] = useState(result.ats_score);
-  const [missingKeywords, setMissingKeywords] = useState<string[]>(
+  const [missingKeywords, setMissingKeywords] = useState<MissingKeyword[]>(
     result.missing_keywords
   );
-  const [injectedKeywords, setInjectedKeywords] = useState<string[]>([]);
+  const [injectedKeywords, setInjectedKeywords] = useState<MissingKeyword[]>([]);
   const [activeTab, setActiveTab] = useState<"editor" | "keywords">("editor");
 
-  const handleKeywordClick = (keyword: string) => {
-    editorRef.current?.injectKeyword(keyword);
+  const handleKeywordClick = (keywordObj: MissingKeyword) => {
+    editorRef.current?.injectKeyword(keywordObj);
 
-    setMissingKeywords((prev) => prev.filter((k) => k !== keyword));
-    setInjectedKeywords((prev) => [...prev, keyword]);
+    setMissingKeywords((prev) => prev.filter((k) => k.keyword !== keywordObj.keyword));
+    setInjectedKeywords((prev) => [...prev, keywordObj]);
 
     // Dynamically boost ATS score by 2-5 points per keyword
     const boost = Math.floor(Math.random() * 4) + 2;

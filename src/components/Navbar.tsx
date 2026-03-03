@@ -1,5 +1,6 @@
 import React from "react";
 import { Briefcase } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
 export const Navbar = () => {
   return (
@@ -10,7 +11,8 @@ export const Navbar = () => {
         </div>
         RoleSync AI
       </div>
-      <div className="flex gap-4">
+      <div className="flex items-center gap-4">
+        <ThemeToggle />
         <button className="text-sm font-medium text-primary/70 hover:text-primary transition-colors">
           How it Works
         </button>

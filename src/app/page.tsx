@@ -6,10 +6,12 @@ import { UploadSection } from "@/components/UploadSection";
 import { OptimizerSection } from "@/components/OptimizerSection";
 import { Loader2 } from "lucide-react";
 
+import { MissingKeyword } from "@/components/KeywordPanel";
+
 interface AnalysisResult {
   ats_score: number;
   domain_score: number;
-  missing_keywords: string[];
+  missing_keywords: MissingKeyword[];
   resumeHTML: string;
 }
 

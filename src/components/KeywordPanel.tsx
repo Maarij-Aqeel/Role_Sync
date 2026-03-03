@@ -3,10 +3,19 @@
 import React from "react";
 import { Sparkles, CheckCircle2 } from "lucide-react";
 
+export interface MissingKeyword {
+  keyword: string;
+  type: "hard_skill" | "concept";
+  target_section: string;
+  suggested_injection: string;
+  target_bullet_index?: number;
+  confidence: number;
+}
+
 interface KeywordPanelProps {
-  missingKeywords: string[];
-  injectedKeywords: string[];
-  onKeywordClick: (keyword: string) => void;
+  missingKeywords: MissingKeyword[];
+  injectedKeywords: MissingKeyword[];
+  onKeywordClick: (keywordObj: MissingKeyword) => void;
 }
 
 export const KeywordPanel: React.FC<KeywordPanelProps> = ({
@@ -27,14 +36,17 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
         <p className="text-xs text-primary/60 mb-3">
           Click a keyword to auto-inject it into the best section of your resume.
         </p>
-        <div className="flex flex-wrap gap-2">
-          {missingKeywords.map((keyword) => (
+        <div className="flex flex-col gap-2">
+          {missingKeywords.map((kw, i) => (
             <button
-              key={keyword}
-              onClick={() => onKeywordClick(keyword)}
-              className="px-3 py-1.5 text-sm font-medium rounded-lg border border-accent/30 text-accent bg-accent/5 hover:bg-accent hover:text-surface transition-all cursor-pointer"
+              key={i}
+              onClick={() => onKeywordClick(kw)}
+              className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg border border-accent/30 text-accent bg-accent/5 hover:bg-accent hover:text-surface transition-all cursor-pointer group"
             >
-              + {keyword}
+              <span>+ {kw.keyword}</span>
+              <span className="text-[10px] uppercase tracking-wider opacity-60 bg-surface/50 px-2 py-0.5 rounded text-primary group-hover:text-primary">
+                {kw.type.replace("_", " ")}
+              </span>
             </button>
           ))}
         </div>
@@ -44,13 +56,13 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
               Added Keywords
             </h4>
             <div className="flex flex-wrap gap-2">
-              {injectedKeywords.map((keyword) => (
+              {injectedKeywords.map((kw, i) => (
                 <span
-                  key={keyword}
+                  key={i}
                   className="px-3 py-1.5 text-sm font-medium rounded-lg bg-green-50 text-green-700 border border-green-200 flex items-center gap-1"
                 >
                   <CheckCircle2 size={14} />
-                  {keyword}
+                  {kw.keyword}
                 </span>
               ))}
             </div>

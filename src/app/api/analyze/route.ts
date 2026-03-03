@@ -3,10 +3,9 @@ import { GoogleGenAI, Type } from "@google/genai";
 const pdf = require("pdf-parse");
 
 // Increase max payload size if needed for large PDFs
-export const maxDuration = 30; // 30 seconds max execution time for Vercel
+export const maxDuration = 30;
 
 // Initialize the Gemini API client
-// It automatically picks up process.env.GEMINI_API_KEY
 const ai = new GoogleGenAI({});
 
 export async function POST(req: NextRequest) {
@@ -27,16 +26,23 @@ export async function POST(req: NextRequest) {
     const pdfData = await pdf(buffer);
     const resumeText = pdfData.text;
 
-    // Use Gemini to perform semantic analysis on the resume vs the JD
     const prompt = `
-You are an expert AI technical recruiter and ATS specialist.
-Analyze the following candidate's resume against the provided Job Description (JD).
-Calculate:
-1. ATS Score (0-100): How well formatted, readable, and structured the resume text is for Applicant Tracking Systems.
-2. Domain Score (0-100): How well the candidate's skills and experience match the core requirements of the job description.
-3. Missing Keywords: Extract exactly 5 to 15 critical keywords, skills, or tools present in the JD that are EITHER completely missing or underrepresented in the resume. 
+You are an expert AI technical recruiter and ATS algorithms specialist.
+Analyze the candidate's resume against the provided Job Description (JD).
+1. Calculate an ATS Score (0-100) based on raw format readability.
+2. Calculate a Domain Score (0-100) based on skill match.
+3. Extract exactly 5 to 10 critical missing skills, keywords, or concepts present in the JD but missing from the resume.
 
-Provide only the JSON matching the required schema.
+For EACH missing keyword, you MUST provide an "injection strategy" object mapped to these exact types:
+- type: 'hard_skill' (e.g., Python, Docker) OR 'concept' (e.g., Agile, System Design, Leadership).
+- target_section: The most logical section to inject this into (e.g., "tech_stack", "experience", "summary", "projects").
+- suggested_injection:
+   - IF 'hard_skill': Just return ", [Keyword]" so it can be appended to a list.
+   - IF 'concept': Write a short, natural sentence fragment starting with an action verb that integrates the concept seamlessly into an experience bullet point (e.g. "Led cross-functional teams utilizing Agile methodologies").
+- target_bullet_index: Only required if type is 'concept'. Provide a best-guess integer (e.g. 0, 1, 2) representing the generic bullet position to inject into. Use 0 if unsure.
+- confidence: A float from 0.0 to 1.0 indicating your confidence in this injection strategy.
+
+Provide only valid JSON matching the schema.
 
 ## Resume Content:
 ${resumeText.substring(0, 15000)}
@@ -53,19 +59,21 @@ ${jdText.substring(0, 15000)}
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            ats_score: {
-              type: Type.INTEGER,
-              description: "Score out of 100 for ATS compatibility",
-            },
-            domain_score: {
-              type: Type.INTEGER,
-              description: "Score out of 100 for domain fit against JD",
-            },
+            ats_score: { type: Type.INTEGER },
+            domain_score: { type: Type.INTEGER },
             missing_keywords: {
               type: Type.ARRAY,
-              description: "Array of exactly 5 to 15 critical missing keywords",
               items: {
-                type: Type.STRING,
+                type: Type.OBJECT,
+                properties: {
+                  keyword: { type: Type.STRING },
+                  type: { type: Type.STRING, description: "hard_skill or concept" },
+                  target_section: { type: Type.STRING },
+                  suggested_injection: { type: Type.STRING },
+                  target_bullet_index: { type: Type.INTEGER },
+                  confidence: { type: Type.NUMBER },
+                },
+                required: ["keyword", "type", "target_section", "suggested_injection", "confidence"],
               },
             },
           },
