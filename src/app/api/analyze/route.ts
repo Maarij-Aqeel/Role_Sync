@@ -31,18 +31,16 @@ You are an expert AI technical recruiter and ATS algorithms specialist.
 Analyze the candidate's resume against the provided Job Description (JD).
 1. Calculate an ATS Score (0-100) based on raw format readability.
 2. Calculate a Domain Score (0-100) based on skill match.
-3. Extract exactly 5 to 10 critical missing skills, keywords, or concepts present in the JD but missing from the resume.
+3. Identify exactly 5 to 10 critical missing skills, keywords, or concepts present in the JD but missing from the resume.
 
-For EACH missing keyword, you MUST provide an "injection strategy" object mapped to these exact types:
-- type: 'hard_skill' (e.g., Python, Docker) OR 'concept' (e.g., Agile, System Design, Leadership).
-- target_section: The most logical section to inject this into (e.g., "tech_stack", "experience", "summary", "projects").
-- suggested_injection:
-   - IF 'hard_skill': Just return ", [Keyword]" so it can be appended to a list.
-   - IF 'concept': Write a short, natural sentence fragment starting with an action verb that integrates the concept seamlessly into an experience bullet point (e.g. "Led cross-functional teams utilizing Agile methodologies").
-- target_bullet_index: Only required if type is 'concept'. Provide a best-guess integer (e.g. 0, 1, 2) representing the generic bullet position to inject into. Use 0 if unsure.
-- confidence: A float from 0.0 to 1.0 indicating your confidence in this injection strategy.
+For EACH missing keyword, you MUST provide a Holistic Rewriting strategy using exactly the following JSON structure. 
 
-Provide only valid JSON matching the schema.
+CRITICAL REWRITING RULES:
+- Holistic Rewriting (No Splicing): NEVER insert a keyword into the middle of an existing sentence or just append it to the end of a block of text. If you determine a keyword belongs in a specific bullet point or summary paragraph, you must REWRITE the ENTIRE sentence or bullet point so that the new keyword is integrated with perfect grammar, natural flow, and zero redundancy.
+- Heal Broken PDF Text (Line Breaks): The resume text you receive has arbitrary hard line breaks (\\n) due to PDF extraction. You MUST ignore these. Your \`original_text\` should match the logical sequence but ignore formatting. Your \`rewritten_text\` MUST be a clean, continuous string of text without internal \\n breaks.
+- Strict Contextual Placement: Target specific Experience bullet points, Summary paragraphs, or comma-separated Skills lists. NEVER inject into or modify Section Headers (e.g. "Experiences", "Projects").
+
+Return strictly valid JSON.
 
 ## Resume Content:
 ${resumeText.substring(0, 15000)}
@@ -61,23 +59,21 @@ ${jdText.substring(0, 15000)}
           properties: {
             ats_score: { type: Type.INTEGER },
             domain_score: { type: Type.INTEGER },
-            missing_keywords: {
+            modifications: {
               type: Type.ARRAY,
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  keyword: { type: Type.STRING },
-                  type: { type: Type.STRING, description: "hard_skill or concept" },
+                  keyword_added: { type: Type.STRING },
                   target_section: { type: Type.STRING },
-                  suggested_injection: { type: Type.STRING },
-                  target_bullet_index: { type: Type.INTEGER },
-                  confidence: { type: Type.NUMBER },
+                  original_text: { type: Type.STRING },
+                  rewritten_text: { type: Type.STRING },
                 },
-                required: ["keyword", "type", "target_section", "suggested_injection", "confidence"],
+                required: ["keyword_added", "target_section", "original_text", "rewritten_text"],
               },
             },
           },
-          required: ["ats_score", "domain_score", "missing_keywords"],
+          required: ["ats_score", "domain_score", "modifications"],
         },
       },
     });
@@ -87,7 +83,7 @@ ${jdText.substring(0, 15000)}
       analysisResult = JSON.parse(response.text || "{}");
     } catch (e) {
       console.error("Failed to parse Gemini JSON:", e);
-      analysisResult = { ats_score: 50, domain_score: 50, missing_keywords: [] };
+      analysisResult = { ats_score: 50, domain_score: 50, modifications: [] };
     }
 
     // Format the resume text roughly into HTML for the TipTap editor
@@ -101,7 +97,7 @@ ${jdText.substring(0, 15000)}
     return NextResponse.json({
       ats_score: analysisResult.ats_score || 0,
       domain_score: analysisResult.domain_score || 0,
-      missing_keywords: analysisResult.missing_keywords || [],
+      modifications: analysisResult.modifications || [],
       resumeHTML: formattedHtml,
     });
   } catch (error) {

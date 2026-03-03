@@ -2,14 +2,14 @@
 
 import React, { useRef, useState } from "react";
 import { ScoreDisplay } from "./ScoreDisplay";
-import { KeywordPanel, MissingKeyword } from "./KeywordPanel";
+import { KeywordPanel, Modification } from "./KeywordPanel";
 import { ResumeEditor, ResumeEditorHandle } from "./ResumeEditor";
 import { Download, ArrowLeft } from "lucide-react";
 
 interface AnalysisResult {
   ats_score: number;
   domain_score: number;
-  missing_keywords: MissingKeyword[];
+  modifications: Modification[];
   resumeHTML: string;
 }
 
@@ -24,17 +24,17 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
 }) => {
   const editorRef = useRef<ResumeEditorHandle>(null);
   const [atsScore, setAtsScore] = useState(result.ats_score);
-  const [missingKeywords, setMissingKeywords] = useState<MissingKeyword[]>(
-    result.missing_keywords
+  const [pendingModifications, setPendingModifications] = useState<Modification[]>(
+    result.modifications
   );
-  const [injectedKeywords, setInjectedKeywords] = useState<MissingKeyword[]>([]);
+  const [injectedModifications, setInjectedModifications] = useState<Modification[]>([]);
   const [activeTab, setActiveTab] = useState<"editor" | "keywords">("editor");
 
-  const handleKeywordClick = (keywordObj: MissingKeyword) => {
-    editorRef.current?.injectKeyword(keywordObj);
+  const handleModificationClick = (modObj: Modification) => {
+    editorRef.current?.injectKeyword(modObj);
 
-    setMissingKeywords((prev) => prev.filter((k) => k.keyword !== keywordObj.keyword));
-    setInjectedKeywords((prev) => [...prev, keywordObj]);
+    setPendingModifications((prev) => prev.filter((m) => m.keyword_added !== modObj.keyword_added));
+    setInjectedModifications((prev) => [...prev, modObj]);
 
     // Dynamically boost ATS score by 2-5 points per keyword
     const boost = Math.floor(Math.random() * 4) + 2;
@@ -50,17 +50,42 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
 
     const container = document.createElement("div");
     container.innerHTML = html;
+    
+    // Flatten container styles to purely safe standard CSS compatible with canvas
     container.style.padding = "40px";
     container.style.fontFamily = "Arial, Helvetica, sans-serif";
     container.style.fontSize = "12px";
     container.style.lineHeight = "1.6";
-    container.style.color = "#2D4059";
+    container.style.color = "#000000"; 
+    container.style.backgroundColor = "#FFFFFF"; 
+
+    // html2canvas fundamentally crashes on Tailwind v4 lab() color variables.
+    // The safest approach is to recursively find our injected spans, read their text,
+    // and replace the entire complex node with a simple, safe HTML tag before export.
+    const injectedSpans = container.querySelectorAll('span[data-injected="true"]');
+    
+    injectedSpans.forEach(span => {
+      const text = span.textContent || "";
+      const replacement = document.createElement("strong");
+      replacement.style.color = "#000000";
+      replacement.textContent = text;
+      
+      span.parentNode?.replaceChild(replacement, span);
+    });
+
+    // Flatten container basics
+    container.style.padding = "40px";
+    container.style.fontFamily = "Arial, Helvetica, sans-serif";
+    container.style.fontSize = "12px";
+    container.style.lineHeight = "1.6";
+    container.style.color = "#000000"; 
+    container.style.backgroundColor = "#FFFFFF";
 
     html2pdf()
       .set({
         margin: [10, 15],
         filename: "rolesync-optimized-resume.pdf",
-        html2canvas: { scale: 2 },
+        html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       })
       .from(container)
@@ -110,7 +135,7 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
               : "text-primary/50"
           }`}
         >
-          Keywords ({missingKeywords.length})
+          Keywords ({pendingModifications.length})
         </button>
       </div>
 
@@ -130,9 +155,9 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
           } lg:block lg:sticky lg:top-20 lg:self-start`}
         >
           <KeywordPanel
-            missingKeywords={missingKeywords}
-            injectedKeywords={injectedKeywords}
-            onKeywordClick={handleKeywordClick}
+            modifications={pendingModifications}
+            injectedModifications={injectedModifications}
+            onModificationClick={handleModificationClick}
           />
         </div>
       </div>

@@ -6,11 +6,11 @@ import StarterKit from "@tiptap/starter-kit";
 import { Mark, mergeAttributes } from "@tiptap/core";
 import { FileEdit } from "lucide-react";
 
-import { MissingKeyword } from "./KeywordPanel";
+import { Modification } from "./KeywordPanel";
 
 export interface ResumeEditorHandle {
   getHTML: () => string;
-  injectKeyword: (keywordObj: MissingKeyword) => void;
+  injectKeyword: (modObj: Modification) => void;
 }
 
 interface ResumeEditorProps {
@@ -59,61 +59,42 @@ export const ResumeEditor = forwardRef<ResumeEditorHandle, ResumeEditorProps>(
 
     useImperativeHandle(ref, () => ({
       getHTML: () => editor?.getHTML() || "",
-      injectKeyword: (keywordObj: MissingKeyword) => {
-        if (!editor) return;
+      injectKeyword: (modObj: Modification) => {
+        if (!editor || !modObj.original_text || !modObj.rewritten_text) return;
 
-        const { doc } = editor.state;
-        let bestPos = -1;
-        let runningBulletCount = 0;
-        const targetSection = (keywordObj.target_section || "skills").toLowerCase();
-
-        // Pass 1: Find the target section node
-        let insideTargetSection = false;
-
-        doc.descendants((node, pos) => {
-          if (node.isText && node.text) {
-            const text = node.text.toLowerCase();
-            if (text.includes(targetSection) || text.includes(targetSection.replace("_", " "))) {
-              insideTargetSection = true;
-            } else if (insideTargetSection && node.text.trim().length > 0 && text.length > 20 && !text.includes(",")) {
-              // Extremely basic heuristic to detect if we moved onto a new major section header
-              // In a real app we'd look for H1/H2 DOM nodes instead
-              if (text === "experience" || text === "education" || text === "projects") {
-                  insideTargetSection = false;
-              }
-            }
-          }
-
-          if (insideTargetSection) {
-            // Strategy: Hard Skill (usually appended to a comma-separated list)
-            if (keywordObj.type === "hard_skill") {
-              const endOfNode = pos + node.nodeSize;
-              if (endOfNode > bestPos) {
-                 bestPos = endOfNode;
-              }
-            } 
-            // Strategy: Concept (usually bullet points)
-            else if (keywordObj.type === "concept") {
-              // If we are looking for a specific bullet index, count them
-              if (node.type.name === "listItem") {
-                 if (runningBulletCount === (keywordObj.target_bullet_index || 0)) {
-                    bestPos = pos + node.nodeSize - 1; // End of this specific list item
-                 }
-                 runningBulletCount++;
-              }
-            }
-          }
-        });
-
-        // Fallback: inject at the end of the document if section not found
-        if (bestPos === -1) {
-          bestPos = doc.content.size;
+        // Phase 7: Holistic Rewriting String Match Strategy
+        const currentHtml = editor.getHTML();
+        
+        // The original text might have formatting variations (e.g. TipTap wraps lines in <p>).
+        // For a perfect replace, we need to match the raw text without HTML tags and replace the entire node content.
+        
+        // Create an aggressive regex that strips excess whitespace to find the matching HTML node roughly
+        // Escape special regex chars from the AI response first
+        const escapedOriginalText = modObj.original_text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        
+        // Since TipTap wraps bullet points in <li><p>text</p></li> or paragraphs in <p>text</p>,
+        // we can attempt a direct string replace if the AI matched exactly.
+        const highlightedHtml = `<span data-injected="true">${modObj.rewritten_text}</span>`;
+        
+        let newHtml = currentHtml.replace(modObj.original_text, highlightedHtml);
+        
+        if (newHtml === currentHtml) {
+           // Fallback fuzzy replace: The raw PDF text doesn't explicitly match the HTML-parsed node string 
+           // (due to spacing, newlines, or lost dashes). 
+           // We will try to find the first paragraph that contains a large chunk of this text
+           const searchSnippet = modObj.original_text.substring(0, 30);
+           const fallbackRegex = new RegExp(`(<p>|<li>)([^<]*${searchSnippet.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^<]*)(</p>|</li>)`, 'i');
+           
+           newHtml = currentHtml.replace(fallbackRegex, `$1${highlightedHtml}$3`);
+        }
+        
+        // If even the fallback fails, just append it to the document (failsafe)
+        if (newHtml === currentHtml) {
+           newHtml += `<p>${highlightedHtml}</p>`;
         }
 
-        // Apply pulse animation to the keyword mark automatically
-        const highlightedHTML = `<span data-injected="true">${keywordObj.suggested_injection}</span>`;
-
-        editor.chain().focus().insertContentAt(bestPos, highlightedHTML).run();
+        // Remount the entire state with the replaced HTML node!
+        editor.commands.setContent(newHtml);
       },
     }));
 
