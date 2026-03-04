@@ -56,18 +56,21 @@ export default function HomePage() {
 
         {phase === "analyzing" && (
           <div className="flex flex-col items-center gap-6 text-center p-12">
-            <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-accent/10 flex items-center justify-center">
-                <Loader2 size={36} className="text-accent animate-spin" />
-              </div>
+            <div className="relative w-24 h-24 flex items-center justify-center">
+              {/* Outer ATS Ring */}
+              <div className="absolute inset-0 border-4 border-accent/20 border-t-accent rounded-full animate-spin"></div>
+              
+              {/* Inner Domain Ring */}
+              <div className="absolute inset-3 border-4 border-primary/10 border-b-primary rounded-full animate-[spin_1.5s_linear_infinite_reverse]"></div>
+              
+              <Loader2 size={24} className="text-primary/50 animate-pulse" />
             </div>
             <div>
               <h2 className="text-2xl font-bold text-primary mb-2">
-                Analyzing Your Resume...
+                Analyzing Your Fit...
               </h2>
-              <p className="text-primary/60 text-sm">
-                Our AI is comparing your resume against the job description.
-                This usually takes a few seconds.
+              <p className="text-primary/60 text-sm max-w-sm mx-auto">
+                Our AI is simulating an ATS scan and extracting critical domain-specific keywords.
               </p>
             </div>
           </div>

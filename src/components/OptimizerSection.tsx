@@ -24,6 +24,7 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
 }) => {
   const editorRef = useRef<ResumeEditorHandle>(null);
   const [atsScore, setAtsScore] = useState(result.ats_score);
+  const [domainScore, setDomainScore] = useState(result.domain_score);
   const [pendingModifications, setPendingModifications] = useState<Modification[]>(
     result.modifications
   );
@@ -36,9 +37,12 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
     setPendingModifications((prev) => prev.filter((m) => m.keyword_added !== modObj.keyword_added));
     setInjectedModifications((prev) => [...prev, modObj]);
 
-    // Dynamically boost ATS score by 2-5 points per keyword
-    const boost = Math.floor(Math.random() * 4) + 2;
-    setAtsScore((prev) => Math.min(100, prev + boost));
+    // Dynamically boost Domain score significantly per keyword, and ATS slightly
+    const domainBoost = Math.floor(Math.random() * 5) + 3; // 3 to 7 points
+    setDomainScore((prev) => Math.min(100, prev + domainBoost));
+
+    const atsBoost = Math.floor(Math.random() * 3) + 1; // 1 to 3 points
+    setAtsScore((prev) => Math.min(100, prev + atsBoost));
   };
 
   const handleDownloadPDF = async () => {
@@ -104,7 +108,7 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
           New Analysis
         </button>
 
-        <ScoreDisplay atsScore={atsScore} domainScore={result.domain_score} />
+        <ScoreDisplay atsScore={atsScore} domainScore={domainScore} />
 
         <button
           onClick={handleDownloadPDF}

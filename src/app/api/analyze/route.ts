@@ -31,11 +31,12 @@ You are an expert AI technical recruiter and ATS algorithms specialist.
 Analyze the candidate's resume against the provided Job Description (JD).
 1. Calculate an ATS Score (0-100) based on raw format readability.
 2. Calculate a Domain Score (0-100) based on skill match.
-3. Identify exactly 5 to 10 critical missing skills, keywords, or concepts present in the JD but missing from the resume.
+3. Identify exactly 5 to 10 critical missing DOMAIN-SPECIFIC skills, keywords, or concepts present in the JD but missing from the resume. The primary goal is to make the resume perfectly match the DOMAIN of the job and reduce manual edit time.
 
-For EACH missing keyword, you MUST provide a Holistic Rewriting strategy using exactly the following JSON structure. 
+For EACH missing domain keyword, you MUST provide a Holistic Rewriting strategy using exactly the following JSON structure. 
 
 CRITICAL REWRITING RULES:
+- Modification Type (\`type\`): You MUST categorize each modification as either a \`"hard_skill"\` (for single words/technologies) or a \`"concept"\` (for full sentences, methodologies, or structural experience updates).
 - Holistic Rewriting (No Splicing): NEVER insert a keyword into the middle of an existing sentence or just append it to the end of a block of text. If you determine a keyword belongs in a specific bullet point or summary paragraph, you must REWRITE the ENTIRE sentence or bullet point so that the new keyword is integrated with perfect grammar, natural flow, and zero redundancy.
 - Heal Broken PDF Text (Line Breaks): The resume text you receive has arbitrary hard line breaks (\\n) due to PDF extraction. You MUST ignore these. Your \`original_text\` should match the logical sequence but ignore formatting. Your \`rewritten_text\` MUST be a clean, continuous string of text without internal \\n breaks.
 - Strict Contextual Placement: Target specific Experience bullet points, Summary paragraphs, or comma-separated Skills lists. NEVER inject into or modify Section Headers (e.g. "Experiences", "Projects").
@@ -64,12 +65,13 @@ ${jdText.substring(0, 15000)}
               items: {
                 type: Type.OBJECT,
                 properties: {
+                  type: { type: Type.STRING, description: "hard_skill or concept" },
                   keyword_added: { type: Type.STRING },
                   target_section: { type: Type.STRING },
                   original_text: { type: Type.STRING },
                   rewritten_text: { type: Type.STRING },
                 },
-                required: ["keyword_added", "target_section", "original_text", "rewritten_text"],
+                required: ["type", "keyword_added", "target_section", "original_text", "rewritten_text"],
               },
             },
           },

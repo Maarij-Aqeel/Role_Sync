@@ -27,7 +27,7 @@ export const KeywordMark = Mark.create({
       "span",
       mergeAttributes(
         {
-          class: "bg-[#EA5455]/20 text-[#2D4059] font-bold px-1 rounded-md mx-1 animate-pulse",
+          class: "bg-[#04b304] text-white font-bold px-1.5 py-0.5 rounded-md mx-1 shadow-sm",
           "data-injected": "true",
         },
         HTMLAttributes

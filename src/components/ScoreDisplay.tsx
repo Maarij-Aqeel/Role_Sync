@@ -12,11 +12,13 @@ const ScoreRing: React.FC<{
   score: number;
   label: string;
   icon: React.ReactNode;
-  color: string;
-}> = ({ score, label, icon, color }) => {
+  colorClass: string;
+}> = ({ score, label, icon, colorClass }) => {
   const radius = 40;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (score / 100) * circumference;
+  // Make sure the offset calculation strictly enforces boundaries
+  const safeScore = Math.min(100, Math.max(0, score || 0));
+  const offset = circumference - (safeScore / 100) * circumference;
 
   return (
     <div className="flex flex-col items-center gap-3 p-6 bg-surface rounded-xl border border-primary/10 shadow-sm hover:shadow-md transition-shadow">
@@ -35,17 +37,19 @@ const ScoreRing: React.FC<{
             cx="50"
             cy="50"
             r={radius}
-            stroke={color}
             strokeWidth="8"
             fill="none"
             strokeLinecap="round"
             strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            className="transition-all duration-1000 ease-out"
+            className={`transition-all duration-1000 ease-out ${colorClass}`}
+            style={{ 
+              strokeDashoffset: offset,
+              stroke: "currentColor"
+            }}
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold text-primary">{score}</span>
+          <span className="text-2xl font-bold text-primary">{safeScore}</span>
           <span className="text-xs text-primary/50">/ 100</span>
         </div>
       </div>
@@ -67,13 +71,13 @@ export const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
         score={atsScore}
         label="ATS Score"
         icon={<TrendingUp size={16} />}
-        color="#EA5455"
+        colorClass="text-accent"
       />
       <ScoreRing
         score={domainScore}
         label="Domain Fit"
         icon={<Target size={16} />}
-        color="#2D4059"
+        colorClass="text-primary"
       />
     </div>
   );
