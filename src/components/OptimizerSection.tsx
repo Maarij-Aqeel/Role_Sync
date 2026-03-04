@@ -15,11 +15,13 @@ interface AnalysisResult {
 
 interface OptimizerSectionProps {
   result: AnalysisResult;
+  resumeFile: File;
   onBack: () => void;
 }
 
 export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
   result,
+  resumeFile,
   onBack,
 }) => {
   const editorRef = useRef<ResumeEditorHandle>(null);
@@ -30,6 +32,7 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
   );
   const [injectedModifications, setInjectedModifications] = useState<Modification[]>([]);
   const [activeTab, setActiveTab] = useState<"editor" | "keywords">("editor");
+  const [isExporting, setIsExporting] = useState(false);
 
   const handleModificationClick = (modObj: Modification) => {
     editorRef.current?.injectKeyword(modObj);
@@ -48,52 +51,43 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
   const handleDownloadPDF = async () => {
     const html = editorRef.current?.getHTML();
     if (!html) return;
-
-    // Dynamic import for client-side PDF generation
-    const { default: html2pdf } = await import("html2pdf.js");
-
-    const container = document.createElement("div");
-    container.innerHTML = html;
     
-    // Flatten container styles to purely safe standard CSS compatible with canvas
-    container.style.padding = "40px";
-    container.style.fontFamily = "Arial, Helvetica, sans-serif";
-    container.style.fontSize = "12px";
-    container.style.lineHeight = "1.6";
-    container.style.color = "#000000"; 
-    container.style.backgroundColor = "#FFFFFF"; 
-
-    // html2canvas fundamentally crashes on Tailwind v4 lab() color variables.
-    // The safest approach is to recursively find our injected spans, read their text,
-    // and replace the entire complex node with a simple, safe HTML tag before export.
-    const injectedSpans = container.querySelectorAll('span[data-injected="true"]');
+    setIsExporting(true);
     
-    injectedSpans.forEach(span => {
-      const text = span.textContent || "";
-      const replacement = document.createElement("strong");
-      replacement.style.color = "#000000";
-      replacement.textContent = text;
-      
-      span.parentNode?.replaceChild(replacement, span);
-    });
+    try {
+      const formData = new FormData();
+      formData.append("resumeFile", resumeFile);
+      formData.append("htmlContent", html);
 
-    // Flatten container basics
-    container.style.padding = "40px";
-    container.style.fontFamily = "Arial, Helvetica, sans-serif";
-    container.style.fontSize = "12px";
-    container.style.lineHeight = "1.6";
-    container.style.color = "#000000"; 
-    container.style.backgroundColor = "#FFFFFF";
+      const response = await fetch("/api/export", {
+        method: "POST",
+        body: formData,
+      });
 
-    html2pdf()
-      .set({
-        margin: [10, 15],
-        filename: "rolesync-optimized-resume.pdf",
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      })
-      .from(container)
-      .save();
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.error
+            ? `${errorData.error}: ${errorData.details || errorData.log || ""}`
+            : "Failed to generate PDF"
+        );
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "rolesync-optimized-resume.pdf";
+      document.body.appendChild(link);
+      link.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    } catch (error: any) {
+      console.error("Export error:", error);
+      alert(`An error occurred while generating the PDF: ${error.message}`);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -112,10 +106,10 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
 
         <button
           onClick={handleDownloadPDF}
-          className="flex items-center gap-2 bg-accent text-surface px-5 py-3 rounded-xl font-bold text-sm hover:bg-accent/90 transition-colors shadow-lg shadow-accent/20"
+          disabled={isExporting}
+          className="flex items-center gap-2 bg-accent text-surface px-5 py-3 rounded-xl font-bold text-sm hover:bg-accent/90 transition-colors shadow-lg shadow-accent/20 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Download size={16} />
-          Download PDF
+          {isExporting ? "Generating Layout..." : <><Download size={16} /> Download PDF</>}
         </button>
       </div>
 

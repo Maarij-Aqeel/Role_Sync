@@ -20,6 +20,7 @@ type AppPhase = "upload" | "analyzing" | "optimize";
 export default function HomePage() {
   const [phase, setPhase] = useState<AppPhase>("upload");
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
 
   const handleAnalyze = async (file: File | null, jdText: string) => {
     if (!file || !jdText) return;
@@ -40,6 +41,7 @@ export default function HomePage() {
 
       const data = await response.json();
       setResult(data);
+      setResumeFile(file);
       setPhase("optimize");
     } catch (error) {
       console.error("Analysis error:", error);
@@ -76,9 +78,10 @@ export default function HomePage() {
           </div>
         )}
 
-        {phase === "optimize" && result && (
+        {phase === "optimize" && result && resumeFile && (
           <OptimizerSection
             result={result}
+            resumeFile={resumeFile}
             onBack={() => {
               setPhase("upload");
               setResult(null);
