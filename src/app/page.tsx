@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { UploadSection } from "@/components/UploadSection";
 import { OptimizerSection } from "@/components/OptimizerSection";
+import { LandingSection } from "@/components/LandingSection";
 import { Loader2 } from "lucide-react";
 
 import { Modification } from "@/components/KeywordPanel";
@@ -15,10 +16,10 @@ interface AnalysisResult {
   resumeHTML: string;
 }
 
-type AppPhase = "upload" | "analyzing" | "optimize";
+type AppPhase = "landing" | "upload" | "analyzing" | "optimize";
 
 export default function HomePage() {
-  const [phase, setPhase] = useState<AppPhase>("upload");
+  const [phase, setPhase] = useState<AppPhase>("landing");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
 
@@ -54,6 +55,8 @@ export default function HomePage() {
       <Navbar />
 
       <main className="flex-1 flex items-center justify-center py-8">
+        {phase === "landing" && <LandingSection onStart={() => setPhase("upload")} />}
+
         {phase === "upload" && <UploadSection onAnalyze={handleAnalyze} />}
 
         {phase === "analyzing" && (
