@@ -38,14 +38,18 @@ export default function HomePage() {
         body: formData,
       });
 
-      if (!response.ok) throw new Error("Analysis failed");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || "Analysis failed. Please try again.");
+      }
 
       const data = await response.json();
       setResult(data);
       setResumeFile(file);
       setPhase("optimize");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Analysis error:", error);
+      alert(error.message);
       setPhase("upload");
     }
   };

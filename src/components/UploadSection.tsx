@@ -50,7 +50,7 @@ export const UploadSection: React.FC<UploadSectionProps> = ({ onAnalyze }) => {
         >
           <input
             type="file"
-            accept=".pdf,.docx"
+            accept=".pdf"
             className="hidden"
             ref={fileInputRef}
             onChange={handleFileChange}
@@ -59,7 +59,7 @@ export const UploadSection: React.FC<UploadSectionProps> = ({ onAnalyze }) => {
             <UploadCloud size={48} />
           </div>
           <h3 className="font-bold text-xl text-primary mb-2">
-            {file ? file.name : "Upload Resume (PDF/DOCX)"}
+            {file ? file.name : "Upload Resume (PDF)"}
           </h3>
           <p className="text-sm text-primary/60">
             {file ? "Click to replace" : "Drag and drop or click to browse"}

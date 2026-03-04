@@ -23,8 +23,18 @@ export async function POST(req: NextRequest) {
 
     // Process PDF to extract text
     const buffer = Buffer.from(await resumeFile.arrayBuffer());
-    const pdfData = await pdf(buffer);
-    const resumeText = pdfData.text;
+    
+    let resumeText = "";
+    try {
+      const pdfData = await pdf(buffer);
+      resumeText = pdfData.text;
+    } catch (parseError: any) {
+      console.error("PDF-Parse failure:", parseError.message || parseError);
+      return NextResponse.json(
+        { error: "Could not parse the uploaded file. Ensure it is a valid, readable PDF." },
+        { status: 400 }
+      );
+    }
 
     const prompt = `
 You are an expert AI technical recruiter and ATS algorithms specialist.
@@ -101,6 +111,7 @@ ${jdText.substring(0, 15000)}
       domain_score: analysisResult.domain_score || 0,
       modifications: analysisResult.modifications || [],
       resumeHTML: formattedHtml,
+      originalResumeText: resumeText,
     });
   } catch (error) {
     console.error("Error processing analysis:", error);
