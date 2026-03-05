@@ -3,7 +3,12 @@ import { GoogleGenAI } from "@google/genai";
 
 export const maxDuration = 30;
 
-const ai = new GoogleGenAI({});
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+  console.warn("⚠️ GEMINI_API_KEY is not defined in the environment variables!");
+}
+
+const ai = new GoogleGenAI({ apiKey: apiKey });
 
 export async function POST(req: NextRequest) {
   try {

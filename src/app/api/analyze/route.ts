@@ -5,8 +5,13 @@ const pdf = require("pdf-parse");
 // Increase max payload size if needed for large PDFs
 export const maxDuration = 30;
 
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+  console.warn("⚠️ GEMINI_API_KEY is not defined in the environment variables!");
+}
+
 // Initialize the Gemini API client
-const ai = new GoogleGenAI({});
+const ai = new GoogleGenAI({ apiKey: apiKey });
 
 export async function POST(req: NextRequest) {
   try {
