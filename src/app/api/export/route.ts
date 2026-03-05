@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
-import { exec } from "child_process";
-import fs from "fs/promises";
-import path from "path";
-import os from "os";
 
 // Allow for a significantly longer timeout to let the LLM generate the full LaTeX payload.
 export const maxDuration = 60;
@@ -69,43 +65,49 @@ INPUTS:
       latexCode = latexCode.replace(/```/g, "").trim();
     }
 
-    // Step 3: Write and Compile inside isolated temp space
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "rolesync_latex_"));
-    const texPath = path.join(tmpDir, "resume.tex");
-    const pdfPath = path.join(tmpDir, "resume.pdf");
+    // Helper to compile LaTeX via Serverless external API
+    const compileTexAPI = async (latexContent: string): Promise<Buffer> => {
+      const compileFormData = new FormData();
+      compileFormData.append("filecontents", latexContent);
+      compileFormData.append("filename", "document.tex");
+      compileFormData.append("engine", "pdflatex");
+      compileFormData.append("return", "pdf");
 
-    await fs.writeFile(texPath, latexCode, "utf8");
-
-    // Helper to compile LaTeX in child process
-    const compileTex = (dir: string, file: string): Promise<{ stdout: string; stderr: string }> => {
-      return new Promise((resolve, reject) => {
-        exec(
-          `pdflatex -interaction=nonstopmode ${file}`,
-          { cwd: dir },
-          (error, stdout, stderr) => {
-            if (error) {
-              reject({ error, stdout, stderr });
-            } else {
-              resolve({ stdout, stderr });
-            }
-          }
-        );
+      const compileResponse = await fetch("https://texlive.net/cgi-bin/latexcgi", {
+        method: "POST",
+        body: compileFormData,
       });
+
+      if (!compileResponse.ok) {
+        throw new Error(`TexLive API Network Error: ${compileResponse.statusText}`);
+      }
+
+      const arrayBuffer = await compileResponse.arrayBuffer();
+      const pdfBuffer = Buffer.from(arrayBuffer);
+
+      // TexLive returns an HTML page if latex fails compilation. Verify PDF Magic Bytes.
+      if (pdfBuffer.length < 5 || pdfBuffer.toString('utf8', 0, 5) !== '%PDF-') {
+        const errorLog = pdfBuffer.toString('utf8').substring(0, 2000); // Send the HTML text error back to LLM
+        throw new Error(errorLog);
+      }
+      return pdfBuffer;
     };
 
+    let pdfBuffer: Buffer;
+
     try {
-      await compileTex(tmpDir, "resume.tex");
+      pdfBuffer = await compileTexAPI(latexCode);
     } catch (firstAttempt: any) {
-      console.warn("First pdflatex compilation failed. Triggering LLM auto-repair fallback.");
+      console.warn("First TexLive compilation failed. Triggering LLM auto-repair fallback.");
       
-      // 1-retry fallback loop passing the pdflatex stdout log back to Gemini
-      const repairPrompt = `The LaTeX code you provided failed to compile using pdflatex. 
+      // 1-retry fallback loop passing the stdout log back to Gemini
+      const repairPrompt = `The LaTeX code you provided failed to compile. 
 
 Here is your previous code:
 ${latexCode}
 
 Here is the compilation error log:
-${firstAttempt.stdout || firstAttempt.stderr || firstAttempt.error?.message}
+${firstAttempt.message || firstAttempt}
 
 Fix the syntax errors directly to make it compilable. Return ONLY the raw fixed LaTeX code block. Start directly with \\documentclass. Do not include markdown tags.`;
 
@@ -122,32 +124,21 @@ Fix the syntax errors directly to make it compilable. Return ONLY the raw fixed 
         repairedLatex = repairedLatex.replace(/```/g, "").trim();
       }
 
-      await fs.writeFile(texPath, repairedLatex, "utf8");
-
       try {
-        await compileTex(tmpDir, "resume.tex");
+        pdfBuffer = await compileTexAPI(repairedLatex);
       } catch (secondAttempt: any) {
-        console.error("Second pdflatex compile failed STDOUT:", secondAttempt.stdout);
-        console.error("Second pdflatex compile failed STDERR:", secondAttempt.stderr);
-        console.error("Preserved failing TeX workspace at:", tmpDir);
-        // We will purposely NOT clean up the tmpDir here so we can debug it via terminal
+        console.error("Second TexLive compile failed:", secondAttempt.message);
         return NextResponse.json(
           { 
             error: "LaTeX compilation failed on repair step", 
-            log: secondAttempt.stdout || secondAttempt.stderr || secondAttempt.error?.message
+            log: secondAttempt.message || "Unknown proxy error"
           },
           { status: 500 }
         );
       }
     }
 
-    // Read the compiled PDF buffer securely mapped out of /tmp
-    const pdfBuffer = await fs.readFile(pdfPath);
-    
-    // Server cleanliness, preventing container storage bloat over time as requested
-    await fs.rm(tmpDir, { recursive: true, force: true });
-
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfBuffer as any, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
