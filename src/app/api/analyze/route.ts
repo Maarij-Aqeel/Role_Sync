@@ -8,10 +8,19 @@ export const maxDuration = 30;
 const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
   console.warn("⚠️ GEMINI_API_KEY is not defined in the environment variables!");
+} else {
+  // Safe debugging to help the user fix Vercel environment variable formatting
+  console.log("=== API KEY DEBUG INFO ===");
+  console.log(`Key Length: ${apiKey.length}`);
+  console.log(`Starts with quote? ${apiKey.startsWith('"') || apiKey.startsWith("'")}`);
+  console.log(`Ends with quote? ${apiKey.endsWith('"') || apiKey.endsWith("'")}`);
+  console.log(`Starts with AIza: ${apiKey.startsWith('AIza')}`);
+  console.log(`Ends with whitespace: ${apiKey !== apiKey.trim()}`);
+  console.log("==========================");
 }
 
 // Initialize the Gemini API client
-const ai = new GoogleGenAI({ apiKey: apiKey });
+const ai = new GoogleGenAI({ apiKey: apiKey?.trim() || "" });
 
 export async function POST(req: NextRequest) {
   try {
