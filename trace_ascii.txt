@@ -1,0 +1,198 @@
+== Info: Host texlive.net:443 was resolved.
+== Info: IPv6: (none)
+== Info: IPv4: 62.171.131.71
+== Info:   Trying 62.171.131.71:443...
+== Info: Connected to texlive.net (62.171.131.71) port 443
+== Info: ALPN: curl offers h2,http/1.1
+=> Send SSL data, 5 bytes (0x5)
+0000: .....
+== Info: TLSv1.3 (OUT), TLS handshake, Client hello (1):
+=> Send SSL data, 512 bytes (0x200)
+0000: ......c...a.a~:\!..F.....2fi}H.....`.1 .b3..q.#..).......x...vGI
+0040: b...0...>.......,.0.........+./...$.(.k.#.'.g.....9.....3.....=.
+0080: <.5./.....u.........texlive.net.................................
+00c0: ........h2.http/1.1.........1.....*.(...........................
+0100: ..............+........-.....3.&.$... .1..KG%.Xy..QQ.m...\......
+0140: .r..<?..........................................................
+0180: ................................................................
+01c0: ................................................................
+== Info:  CAfile: /etc/ssl/certs/ca-certificates.crt
+== Info:  CApath: /etc/ssl/certs
+<= Recv SSL data, 5 bytes (0x5)
+0000: ....z
+== Info: TLSv1.3 (IN), TLS handshake, Server hello (2):
+<= Recv SSL data, 122 bytes (0x7a)
+0000: ...v....D.-]....."N]P%#.....c=..O..r.. .b3..q.#..).......x...vGI
+0040: b...0........+.....3.$... ...R......$D"......K.....tS....9
+<= Recv SSL data, 5 bytes (0x5)
+0000: .....
+<= Recv SSL data, 5 bytes (0x5)
+0000: ....*
+<= Recv SSL data, 1 bytes (0x1)
+0000: .
+== Info: TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+<= Recv SSL data, 25 bytes (0x19)
+0000: .................http/1.1
+<= Recv SSL data, 5 bytes (0x5)
+0000: ...."
+<= Recv SSL data, 1 bytes (0x1)
+0000: .
+== Info: TLSv1.3 (IN), TLS handshake, Certificate (11):
+<= Recv SSL data, 2577 bytes (0xa11)
+0000: ...........0...0............8.F..<........@.0...*.H........031.0
+0040: ...U....US1.0...U....Let's Encrypt1.0...U....R120...260218025818
+0080: Z..260519025817Z0.1.0...U....texlive.net0.."0...*.H.............
+00c0: 0..........U.J.......0sO../.....-..k.S_h..!H9Q....TI.....>.cd..!
+0100: .....|.....*!u...v`,H.J.....<.^bi..C..J.x...........n.......o...
+0140: .C.TT....P.......`........S..Z..@9...m..J{.Y.F.2....U...j.DPt:..
+0180: ...<{...,p..i..U`...#a...EL......R...0...........T:.m.W.,.......
+01c0: ,.. .}6~..........0...0...U...........0...U.%..0...+.......0...U
+0200: .......0.0...U........$S..W.rw+..~f.1S. 0...U.#..0.....).-.o1..L
+0240: .x>......03..+........'0%0#..+.....0...http://r12.i.lencr.org/0.
+0280: ..U....0...texlive.net0...U. ..0.0...g.....0...U...'0%0#.!....ht
+02c0: tp://r12.c.lencr.org/25.crl0.....+.....y............v...d.UX...C
+0300: .h7.Bw..:....6nF.?........n........G0E. jJ&.ah. .|...~........k.
+0340: ...6.....!....... 8....D*..K..)Y.x..6^.H.if....#................
+0380: ....'....DX.......n.........2.69...H0F.!.....a-K.z&h.+.+.8..U.1.
+03c0: ..pQ+...u.!..2.?..<O...(9?Z...........R.....0...*.H.............
+0400: ...L.4...p..Ui. E.[........J5...+Cn..l...7.....@..A.yY...D0.]...
+0440: ...9P.4mw..U....<..&R......x..x.a.1..i@......I.af..x./....$..a..
+0480: .+..e'..6]..|....`.T.F...W.j]a.B...6.;).3.....T=..2.'.Bt..H=j..I
+04c0: .</.........s.M*..N...B........dX:....8..L%..B.lSS.,.l?U......>.
+0500: .....0...0.............2Kp...q.@...&<0...*.H........0O1.0...U...
+0540: .US1)0'..U... Internet Security Research Group1.0...U....ISRG Ro
+0580: ot X10...240313000000Z..270312235959Z031.0...U....US1.0...U....L
+05c0: et's Encrypt1.0...U....R120.."0...*.H.............0..........(t.
+0600: ...;....Ku.,.....2~6...1..........Q=L.(n.U1.."]r.-..M@<..#.x7..e
+0640: 24..q.....[.........s.m........Ea.5=...._j.......*..*....q.;t.<.
+0680: .`.ZKN...*s\.ae...<..No....F...M*c..f...p.Peo;t.H...X]-#.^......
+06c0: ....M..z.'....-........79...,A.....!.Y...:|.\..b..(...<.........
+0700: ...0..0...U...........0...U.%..0...+.........+.......0...U......
+0740: .0.......0...U........).-.o1..L.x>......0...U.#..0...y.Y.{....s.
+0780: ....X...n02..+........&0$0"..+.....0...http://x1.i.lencr.org/0..
+07c0: .U. ..0.0...g.....0'..U... 0.0.......http://x1.c.lencr.org/0...*
+0800: .H..............u...jvHe2...D..v......v.....n..V...K....xH.u...F
+0840: {.`+ .....E.j.R........_.mF.RP.@...}..X.......c.f..w;...&..@....
+0880: ..W.\qA.0 ....KP(..............~t@..Z.O\......Y..yn#M.....)j\...
+08c0: B...Nd {..1..h.G...x..NJ.i$*K7{Q.k:?R.....XN..._o.1IH..?... =...
+0900: ....8#.q.@...F4.jN...c_.i.G..".KH..uT......S.{.6M.....J.3<.i....
+0940: ..._.T.M.....Z..z6.$..XR..5.^-.t.b&...1).....b.h.w.....Y..fK.P..
+0980: .....`M.KaO. ..H.1......w.......F...K.......6i?.hKt...P.jz...H..
+09c0: }]a...f.u..^...c.#.P....u7>u...%(.!N..:......_.Q.F.......W......
+0a00: ...n....N..|.v;..
+<= Recv SSL data, 5 bytes (0x5)
+0000: .....
+<= Recv SSL data, 1 bytes (0x1)
+0000: .
+== Info: TLSv1.3 (IN), TLS handshake, CERT verify (15):
+<= Recv SSL data, 264 bytes (0x108)
+0000: ........5.M.u./....:..7x..[..W.....PYzxJ.R*2,..7u,.Jt.......!..g
+0040: .vk.......bZ...3.-c..mm..t.z..2w..q4..........;_....h..w...{#...
+0080: .n!.Cu...R.t...&A9...Y.. ..t.".....L..x++X..h5R";Q..I..F.Z.o..:b
+00c0: .lo.,f....Af....3{..i....1.~y.W..CpO0..qd. .q5...%.........M..2a
+0100: ...!YH..
+<= Recv SSL data, 5 bytes (0x5)
+0000: ....E
+<= Recv SSL data, 1 bytes (0x1)
+0000: .
+== Info: TLSv1.3 (IN), TLS handshake, Finished (20):
+<= Recv SSL data, 52 bytes (0x34)
+0000: ...0.ChYaf...n.+=R0....k....j...Z.i.W.D. .]..s...).o
+=> Send SSL data, 5 bytes (0x5)
+0000: .....
+== Info: TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+=> Send SSL data, 1 bytes (0x1)
+0000: .
+=> Send SSL data, 5 bytes (0x5)
+0000: ....E
+=> Send SSL data, 1 bytes (0x1)
+0000: .
+== Info: TLSv1.3 (OUT), TLS handshake, Finished (20):
+=> Send SSL data, 52 bytes (0x34)
+0000: ...0..g/.3..w..#..[.=r...Y..B.A..F.U.....O......F.i.
+== Info: SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / X25519 / RSASSA-PSS
+== Info: ALPN: server accepted http/1.1
+== Info: Server certificate:
+== Info:  subject: CN=texlive.net
+== Info:  start date: Feb 18 02:58:18 2026 GMT
+== Info:  expire date: May 19 02:58:17 2026 GMT
+== Info:  subjectAltName: host "texlive.net" matched cert's "texlive.net"
+== Info:  issuer: C=US; O=Let's Encrypt; CN=R12
+== Info:  SSL certificate verify ok.
+== Info:   Certificate level 0: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
+== Info:   Certificate level 1: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
+== Info:   Certificate level 2: Public key type RSA (4096/152 Bits/secBits), signed using sha256WithRSAEncryption
+== Info: using HTTP/1.x
+=> Send SSL data, 5 bytes (0x5)
+0000: .....
+=> Send SSL data, 1 bytes (0x1)
+0000: .
+=> Send header, 204 bytes (0xcc)
+0000: POST /cgi-bin/latexcgi HTTP/1.1
+0021: Host: texlive.net
+0034: User-Agent: curl/8.5.0
+004c: Accept: */*
+0059: Content-Length: 606
+006e: Content-Type: multipart/form-data; boundary=--------------------
+00ae: ----u8RJ9fmeK61btGdS7irPgo
+00ca: 
+=> Send SSL data, 5 bytes (0x5)
+0000: ....o
+=> Send SSL data, 1 bytes (0x1)
+0000: .
+=> Send data, 606 bytes (0x25e)
+0000: --------------------------u8RJ9fmeK61btGdS7irPgo
+0032: Content-Disposition: form-data; name="filecontents"; filename="t
+0072: est2.tex"
+007d: Content-Type: application/octet-stream
+00a5: 
+00a7: \documentclass{article}.egin{document}hello.nd{document}.
+00e2: --------------------------u8RJ9fmeK61btGdS7irPgo
+0114: Content-Disposition: form-data; name="filename"
+0145: 
+0147: document.tex
+0155: --------------------------u8RJ9fmeK61btGdS7irPgo
+0187: Content-Disposition: form-data; name="engine"
+01b6: 
+01b8: pdflatex
+01c2: --------------------------u8RJ9fmeK61btGdS7irPgo
+01f4: Content-Disposition: form-data; name="return"
+0223: 
+0225: pdf
+022a: --------------------------u8RJ9fmeK61btGdS7irPgo--
+== Info: We are completely uploaded and fine
+<= Recv SSL data, 5 bytes (0x5)
+0000: ....J
+<= Recv SSL data, 1 bytes (0x1)
+0000: .
+== Info: TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+<= Recv SSL data, 57 bytes (0x39)
+0000: ...5...,<............. _.Z..Y.............w....9...V+}h..
+<= Recv SSL data, 5 bytes (0x5)
+0000: ....J
+<= Recv SSL data, 1 bytes (0x1)
+0000: .
+== Info: TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+<= Recv SSL data, 57 bytes (0x39)
+0000: ...5...,:............. .ssCT?.G.kc..R.\4)z...".B.;.X..j..
+== Info: old SSL session ID is stale, removing
+<= Recv SSL data, 5 bytes (0x5)
+0000: .....
+<= Recv SSL data, 1 bytes (0x1)
+0000: .
+<= Recv header, 17 bytes (0x11)
+0000: HTTP/1.1 200 OK
+<= Recv header, 37 bytes (0x25)
+0000: Date: Fri, 06 Mar 2026 18:22:26 GMT
+<= Recv header, 32 bytes (0x20)
+0000: Server: Apache/2.4.62 (Debian)
+<= Recv header, 20 bytes (0x14)
+0000: Content-Length: 67
+<= Recv header, 41 bytes (0x29)
+0000: Content-Type: text/plain; charset=utf-8
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 67 bytes (0x43)
+0000: Bad form type.Unexpected param: filename Bad Form: no main docum
+0040: ent
+== Info: Connection #0 to host texlive.net left intact

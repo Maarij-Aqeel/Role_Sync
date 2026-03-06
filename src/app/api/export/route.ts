@@ -76,10 +76,6 @@ INPUTS:
       body += `${latexContent}\r\n`;
       
       body += `--${boundary}\r\n`;
-      body += `Content-Disposition: form-data; name="filename"\r\n\r\n`;
-      body += `document.tex\r\n`;
-      
-      body += `--${boundary}\r\n`;
       body += `Content-Disposition: form-data; name="engine"\r\n\r\n`;
       body += `pdflatex\r\n`;
       
@@ -94,7 +90,7 @@ INPUTS:
         headers: {
           "Content-Type": `multipart/form-data; boundary=${boundary}`
         },
-        body: body,
+        body: Buffer.from(body, 'utf-8'),
       });
 
       if (!compileResponse.ok) {
