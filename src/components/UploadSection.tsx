@@ -5,9 +5,10 @@ import { UploadCloud, FileText } from "lucide-react";
 
 interface UploadSectionProps {
   onAnalyze: (resumeFile: File | null, jdText: string) => void;
+  isCoverLetter?: boolean;
 }
 
-export const UploadSection: React.FC<UploadSectionProps> = ({ onAnalyze }) => {
+export const UploadSection: React.FC<UploadSectionProps> = ({ onAnalyze, isCoverLetter = false }) => {
   const [file, setFile] = useState<File | null>(null);
   const [jd, setJd] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -33,10 +34,12 @@ export const UploadSection: React.FC<UploadSectionProps> = ({ onAnalyze }) => {
     <div className="w-full max-w-4xl mx-auto p-6 flex flex-col gap-8">
       <div className="text-center mb-4">
         <h1 className="text-4xl font-bold text-primary mb-4">
-          Optimize Your Resume for the ATS
+          {isCoverLetter ? "Craft Your Perfect Cover Letter" : "Optimize Your Resume for the ATS"}
         </h1>
         <p className="text-primary/70 text-lg">
-          Upload your resume and paste the job description to get AI-powered insights and keyword suggestions.
+          {isCoverLetter 
+            ? "Upload your resume and paste the job description to generate a highly personalized, AI-driven cover letter."
+            : "Upload your resume and paste the job description to get AI-powered insights and keyword suggestions."}
         </p>
       </div>
 
@@ -87,7 +90,7 @@ export const UploadSection: React.FC<UploadSectionProps> = ({ onAnalyze }) => {
           disabled={!file || !jd}
           className="bg-accent text-surface px-8 py-4 rounded-xl font-bold text-lg hover:bg-accent/90 transition-colors shadow-lg shadow-accent/20 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Analyze Resume Matching
+          {isCoverLetter ? "Analyze & Write Cover Letter" : "Analyze Resume Matching"}
         </button>
       </div>
     </div>

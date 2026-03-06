@@ -18,7 +18,7 @@ export default function CoverLetterPage() {
   // Route guarding
   useEffect(() => {
     if (!originalResumeText || !jobDescription) {
-      router.push("/upload");
+      router.push("/upload?intent=cover-letter");
     }
   }, [originalResumeText, jobDescription, router]);
 

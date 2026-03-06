@@ -5,12 +5,20 @@ import { Navbar } from "@/components/Navbar";
 import { UploadSection } from "@/components/UploadSection";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { useRouter } from "next/navigation";
-import { FileSearch } from "lucide-react";
+import { FileSearch, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function UploadGatePage() {
   const router = useRouter();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isCoverLetter, setIsCoverLetter] = useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsCoverLetter(window.location.search.includes("intent=cover-letter"));
+    }
+  }, []);
+
   const { 
     setResumeFile, 
     setJobDescription, 
@@ -51,8 +59,12 @@ export default function UploadGatePage() {
       setModifications(data.modifications || []);
       setOriginalResumeText(data.originalResumeText || "");
 
-      // Navigate to unified workspace
-      router.push("/workspace");
+      // Navigate to unified workspace based on original intent
+      if (isCoverLetter) {
+        router.push("/workspace/cover-letter");
+      } else {
+        router.push("/workspace");
+      }
       
     } catch (error: any) {
       console.error("Analysis error:", error);
@@ -89,14 +101,18 @@ export default function UploadGatePage() {
               />
             </div>
             <div className="space-y-3">
-              <h2 className="text-2xl font-bold text-primary">Scanning Application</h2>
+              <h2 className="text-2xl font-bold text-primary">
+                {isCoverLetter ? "Drafting Cover Letter Framework" : "Scanning Application"}
+              </h2>
               <p className="text-primary/70 text-sm leading-relaxed">
-                Our AI is extracting semantic context, parsing skills, and calculating your baseline Domain fit scores against the Job Description...
+                {isCoverLetter 
+                  ? "Our AI is extracting semantic context and generating the blueprint for your Cover Letter against the Job Description..."
+                  : "Our AI is extracting semantic context, parsing skills, and calculating your baseline Domain fit scores against the Job Description..."}
               </p>
             </div>
           </div>
         ) : (
-          <UploadSection onAnalyze={handleAnalyze} />
+          <UploadSection onAnalyze={handleAnalyze} isCoverLetter={isCoverLetter} />
         )}
       </main>
     </div>
