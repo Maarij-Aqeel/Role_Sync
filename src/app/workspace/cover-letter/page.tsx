@@ -48,9 +48,39 @@ export default function CoverLetterPage() {
     }
   };
 
-  const handlePrint = () => {
-    // The easiest way to export a basic cover letter from TipTap without a complex LaTeX template
-    window.print();
+  const handlePrint = async () => {
+    if (!editorRef.current) return;
+    const htmlContent = editorRef.current.getHTML();
+
+    // Create a temporary container styled with Tailwind Typography for the PDF
+    const container = document.createElement("div");
+    container.innerHTML = htmlContent;
+    // Apply Tailwind prose class so it renders beautifully in the PDF
+    container.className = "prose prose-sm max-w-none p-8 text-black bg-white";
+    // Hide it from view but keep it in the DOM for html2canvas
+    container.style.position = "absolute";
+    container.style.left = "-9999px";
+    container.style.top = "0";
+    document.body.appendChild(container);
+
+    try {
+      // Dynamically import html2pdf to avoid Next.js SSR errors with window object
+      const html2pdf = (await import("html2pdf.js")).default;
+      const opt = {
+        margin:       [0.5, 0.5, 0.5, 0.5] as [number, number, number, number],
+        filename:     'AI_Cover_Letter.pdf',
+        image:        { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in' as const, format: 'letter' as const, orientation: 'portrait' as const }
+      };
+
+      await html2pdf().set(opt).from(container).save();
+    } catch (error) {
+      console.error("PDF Export failed", error);
+      alert("Failed to export PDF. Please try again or use the Copy to Clipboard feature.");
+    } finally {
+      document.body.removeChild(container);
+    }
   };
 
   const handleCopy = async () => {
@@ -89,19 +119,29 @@ export default function CoverLetterPage() {
       }
     }
 
-    // Attempt 3: Legacy execCommand Fallback (Insecure Contexts like 192.168 local network IPs)
+    // Attempt 3: Legacy execCommand Fallback with Rich Text (Insecure Contexts like 192.168 local network IPs)
     if (!success) {
       try {
-        const textArea = document.createElement("textarea");
-        textArea.value = textContent;
+        const div = document.createElement("div");
+        div.contentEditable = "true";
+        div.innerHTML = htmlContent;
         // Keep hidden
-        textArea.style.position = "absolute";
-        textArea.style.left = "-999999px";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
+        div.style.position = "absolute";
+        div.style.left = "-999999px";
+        document.body.appendChild(div);
+        
+        // Select the DOM nodes using Range
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(div);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        
         success = document.execCommand("copy");
-        document.body.removeChild(textArea);
+        
+        // Cleanup
+        selection?.removeAllRanges();
+        document.body.removeChild(div);
       } catch (err) {
         console.error("ExecCommand fallback completely failed:", err);
       }
