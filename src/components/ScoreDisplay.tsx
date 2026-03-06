@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import { motion } from "framer-motion";
 import { TrendingUp, Target } from "lucide-react";
 
 interface ScoreDisplayProps {
@@ -33,7 +33,7 @@ const ScoreRing: React.FC<{
             fill="none"
             className="text-primary/10"
           />
-          <circle
+          <motion.circle
             cx="50"
             cy="50"
             r={radius}
@@ -41,15 +41,22 @@ const ScoreRing: React.FC<{
             fill="none"
             strokeLinecap="round"
             strokeDasharray={circumference}
-            className={`transition-all duration-1000 ease-out ${colorClass}`}
-            style={{ 
-              strokeDashoffset: offset,
-              stroke: "currentColor"
-            }}
+            className={colorClass}
+            style={{ stroke: "currentColor" }}
+            initial={{ strokeDashoffset: circumference }}
+            animate={{ strokeDashoffset: offset }}
+            transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold text-primary">{safeScore}</span>
+          <motion.span 
+            className="text-2xl font-bold text-primary"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            {safeScore}
+          </motion.span>
           <span className="text-xs text-primary/50">/ 100</span>
         </div>
       </div>

@@ -5,7 +5,8 @@ import { Navbar } from "@/components/Navbar";
 import { UploadSection } from "@/components/UploadSection";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { FileSearch } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function UploadGatePage() {
   const router = useRouter();
@@ -65,17 +66,32 @@ export default function UploadGatePage() {
       <Navbar />
       <main className="flex-1 flex items-center justify-center p-8">
         {isAnalyzing ? (
-          <div className="flex flex-col items-center gap-6 text-center p-12">
-            <div className="relative">
-              <Loader2 className="w-16 h-16 text-accent animate-spin" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-8 h-8 rounded-full bg-primary/10 animate-pulse"></div>
-              </div>
+          <div className="flex flex-col items-center justify-center gap-8 text-center p-12 max-w-md mx-auto">
+            <div className="relative w-32 h-32 flex items-center justify-center rounded-2xl bg-surface border border-primary/10 shadow-lg overflow-hidden">
+              <motion.div 
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.6, 0.3]
+                }}
+                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                className="absolute inset-0 bg-accent/5 rounded-2xl"
+              />
+              <motion.div
+                 animate={{ y: [-5, 5, -5] }}
+                 transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+              >
+                <FileSearch className="w-12 h-12 text-accent" />
+              </motion.div>
+              <motion.div 
+                className="absolute left-0 right-0 h-1 bg-accent/50 filter blur-[2px]"
+                animate={{ top: ["0%", "100%", "0%"] }}
+                transition={{ repeat: Infinity, duration: 2.5, ease: "linear" }}
+              />
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-primary mb-2">Analyzing Resume Match</h2>
-              <p className="text-primary/70 max-w-sm">
-                Our AI is extracting semantic context and computing your baseline ATS and Domain fit scores...
+            <div className="space-y-3">
+              <h2 className="text-2xl font-bold text-primary">Scanning Application</h2>
+              <p className="text-primary/70 text-sm leading-relaxed">
+                Our AI is extracting semantic context, parsing skills, and calculating your baseline Domain fit scores against the Job Description...
               </p>
             </div>
           </div>
