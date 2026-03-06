@@ -67,15 +67,34 @@ INPUTS:
 
     // Helper to compile LaTeX via Serverless external API
     const compileTexAPI = async (latexContent: string): Promise<Buffer> => {
-      const compileFormData = new FormData();
-      compileFormData.append("filecontents", latexContent);
-      compileFormData.append("filename", "document.tex");
-      compileFormData.append("engine", "pdflatex");
-      compileFormData.append("return", "pdf");
+      const boundary = "----WebKitFormBoundary" + Math.random().toString(36).substring(2);
+      let body = "";
+      
+      body += `--${boundary}\r\n`;
+      body += `Content-Disposition: form-data; name="filecontents"; filename="document.tex"\r\n`;
+      body += `Content-Type: application/x-tex\r\n\r\n`;
+      body += `${latexContent}\r\n`;
+      
+      body += `--${boundary}\r\n`;
+      body += `Content-Disposition: form-data; name="filename"\r\n\r\n`;
+      body += `document.tex\r\n`;
+      
+      body += `--${boundary}\r\n`;
+      body += `Content-Disposition: form-data; name="engine"\r\n\r\n`;
+      body += `pdflatex\r\n`;
+      
+      body += `--${boundary}\r\n`;
+      body += `Content-Disposition: form-data; name="return"\r\n\r\n`;
+      body += `pdf\r\n`;
+      
+      body += `--${boundary}--\r\n`;
 
       const compileResponse = await fetch("https://texlive.net/cgi-bin/latexcgi", {
         method: "POST",
-        body: compileFormData,
+        headers: {
+          "Content-Type": `multipart/form-data; boundary=${boundary}`
+        },
+        body: body,
       });
 
       if (!compileResponse.ok) {
