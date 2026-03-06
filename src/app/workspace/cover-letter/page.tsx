@@ -54,16 +54,14 @@ export default function CoverLetterPage() {
 
     // Create a temporary container styled with Tailwind Typography for the PDF
     const container = document.createElement("div");
-    container.innerHTML = htmlContent;
-    // Apply Tailwind prose class and enforce a white background
-    container.className = "prose prose-sm max-w-none p-8 text-black bg-white";
-    // Keep it in the viewport but hidden behind the current page so html2canvas can capture it
-    container.style.position = "absolute";
-    container.style.top = "0";
-    container.style.left = "0";
+    // Ensure all text forces dark color and a white background natively, explicitly wrapping the content
+    container.innerHTML = `<div style="background-color: #ffffff; color: #000000; padding: 2rem;">${htmlContent}</div>`;
+    // Apply Tailwind prose class so it renders beautifully in the PDF
+    container.className = "prose prose-sm max-w-none text-black bg-white";
     container.style.width = "800px"; // Force a standard letter-ish width
-    container.style.zIndex = "-10";
-    document.body.appendChild(container);
+    
+    // We intentionally DO NOT append this to document.body!
+    // html2pdf.js will automatically spawn a hidden iframe, clone the stylesheets, and render this off-screen.
 
     try {
       // Dynamically import html2pdf to avoid Next.js SSR errors with window object
@@ -80,8 +78,6 @@ export default function CoverLetterPage() {
     } catch (error) {
       console.error("PDF Export failed", error);
       alert("Failed to export PDF. Please try again or use the Copy to Clipboard feature.");
-    } finally {
-      document.body.removeChild(container);
     }
   };
 
