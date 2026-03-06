@@ -55,12 +55,14 @@ export default function CoverLetterPage() {
     // Create a temporary container styled with Tailwind Typography for the PDF
     const container = document.createElement("div");
     container.innerHTML = htmlContent;
-    // Apply Tailwind prose class so it renders beautifully in the PDF
+    // Apply Tailwind prose class and enforce a white background
     container.className = "prose prose-sm max-w-none p-8 text-black bg-white";
-    // Hide it from view but keep it in the DOM for html2canvas
+    // Keep it in the viewport but hidden behind the current page so html2canvas can capture it
     container.style.position = "absolute";
-    container.style.left = "-9999px";
     container.style.top = "0";
+    container.style.left = "0";
+    container.style.width = "800px"; // Force a standard letter-ish width
+    container.style.zIndex = "-10";
     document.body.appendChild(container);
 
     try {
@@ -70,7 +72,7 @@ export default function CoverLetterPage() {
         margin:       [0.5, 0.5, 0.5, 0.5] as [number, number, number, number],
         filename:     'AI_Cover_Letter.pdf',
         image:        { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
         jsPDF:        { unit: 'in' as const, format: 'letter' as const, orientation: 'portrait' as const }
       };
 
@@ -89,10 +91,14 @@ export default function CoverLetterPage() {
     const textContent = htmlContent.replace(/<[^>]*>?/gm, '');
     let success = false;
     
+    
+    // Force Light Mode styling for email clients like Gmail, otherwise they inherit Next-Themes dark mode values
+    const styledHtmlContent = `<div style="color: #000000; background-color: #ffffff; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.6;">${htmlContent}</div>`;
+    
     // Attempt 1: Rich Text Clipboard (Chromium / Safari Secure Context)
     try {
       if (typeof navigator !== "undefined" && navigator.clipboard && typeof ClipboardItem !== "undefined") {
-        const blobHtml = new Blob([htmlContent], { type: "text/html" });
+        const blobHtml = new Blob([styledHtmlContent], { type: "text/html" });
         const blobText = new Blob([textContent], { type: "text/plain" });
         
         const item = new ClipboardItem({
@@ -124,7 +130,7 @@ export default function CoverLetterPage() {
       try {
         const div = document.createElement("div");
         div.contentEditable = "true";
-        div.innerHTML = htmlContent;
+        div.innerHTML = styledHtmlContent;
         // Keep hidden
         div.style.position = "absolute";
         div.style.left = "-999999px";
