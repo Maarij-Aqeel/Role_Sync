@@ -15,6 +15,7 @@ export interface ResumeEditorHandle {
 
 interface ResumeEditorProps {
   initialContent: string;
+  title?: string;
 }
 
 export const KeywordMark = Mark.create({
@@ -38,7 +39,7 @@ export const KeywordMark = Mark.create({
 });
 
 export const ResumeEditor = forwardRef<ResumeEditorHandle, ResumeEditorProps>(
-  ({ initialContent }, ref) => {
+  ({ initialContent, title = "Resume Editor" }, ref) => {
     const editor = useEditor({
       extensions: [StarterKit, KeywordMark],
       content: initialContent,
@@ -102,7 +103,7 @@ export const ResumeEditor = forwardRef<ResumeEditorHandle, ResumeEditorProps>(
       <div className="bg-surface rounded-xl border border-primary/10 shadow-sm overflow-hidden flex flex-col h-full">
         <div className="p-4 bg-primary/5 border-b border-primary/10 flex items-center gap-2 shrink-0">
           <FileEdit size={18} className="text-primary" />
-          <h3 className="font-bold text-primary text-sm">Resume Editor</h3>
+          <h3 className="font-bold text-primary text-sm">{title}</h3>
           <span className="ml-auto text-xs text-primary/50">
             Edit directly or click keywords to inject
           </span>

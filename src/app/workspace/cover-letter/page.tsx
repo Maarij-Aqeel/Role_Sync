@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowLeft, Wand2, Download } from "lucide-react";
+import { Loader2, ArrowLeft, Wand2, Download, Copy, Check } from "lucide-react";
 import { ResumeEditor, ResumeEditorHandle } from "@/components/ResumeEditor";
 
 export default function CoverLetterPage() {
@@ -14,6 +14,7 @@ export default function CoverLetterPage() {
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [coverLetterHTML, setCoverLetterHTML] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   // Route guarding
   useEffect(() => {
@@ -52,6 +53,34 @@ export default function CoverLetterPage() {
     window.print();
   };
 
+  const handleCopy = async () => {
+    if (!editorRef.current) return;
+    const htmlContent = editorRef.current.getHTML();
+    
+    try {
+      const blobHtml = new Blob([htmlContent], { type: "text/html" });
+      // Strip HTML for plain text fallback
+      const textContent = htmlContent.replace(/<[^>]*>?/gm, '');
+      const blobText = new Blob([textContent], { type: "text/plain" });
+      
+      const item = new ClipboardItem({
+        "text/html": blobHtml,
+        "text/plain": blobText,
+      });
+      
+      await navigator.clipboard.write([item]);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch (err) {
+      console.error("Failed to copy rich text", err);
+      // Fallback for older browsers
+      const textContent = htmlContent.replace(/<[^>]*>?/gm, '');
+      await navigator.clipboard.writeText(textContent);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  };
+
   if (!originalResumeText || !jobDescription) return null;
 
   return (
@@ -80,12 +109,21 @@ export default function CoverLetterPage() {
               </button>
               
               {coverLetterHTML && (
-                <button
-                  onClick={handlePrint}
-                  className="bg-accent text-surface px-4 py-2 rounded-lg font-bold text-sm hover:bg-accent/90 transition-colors shadow-lg flex items-center gap-2"
-                >
-                  <Download size={16} /> Export PDF
-                </button>
+                <>
+                  <button
+                    onClick={handleCopy}
+                    className="bg-surface text-primary border border-primary/20 px-4 py-2 rounded-lg font-bold text-sm hover:bg-primary/5 transition-colors shadow-sm flex items-center gap-2"
+                  >
+                    {copied ? <Check size={16} className="text-[#04b304]" /> : <Copy size={16} />}
+                    {copied ? "Copied!" : "Copy to Clipboard"}
+                  </button>
+                  <button
+                    onClick={handlePrint}
+                    className="bg-accent text-surface px-4 py-2 rounded-lg font-bold text-sm hover:bg-accent/90 transition-colors shadow-lg flex items-center gap-2"
+                  >
+                    <Download size={16} /> Export PDF
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -100,7 +138,7 @@ export default function CoverLetterPage() {
               </div>
             ) : coverLetterHTML ? (
               <div className="flex-1 border border-primary/10 rounded-xl overflow-hidden shadow-sm">
-                <ResumeEditor ref={editorRef} initialContent={coverLetterHTML} />
+                <ResumeEditor ref={editorRef} initialContent={coverLetterHTML} title="Cover Letter Editor" />
               </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-12 bg-primary/5 rounded-xl border-2 border-dashed border-primary/10">

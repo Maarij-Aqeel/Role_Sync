@@ -30,17 +30,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const prompt = `
-You are an expert AI Career Coach. 
-Write a highly compelling, professional, and personalized Cover Letter.
+    const prompt = `You are an expert Technical Recruiter and Senior Engineering Hiring Manager at a fast-paced AI startup. 
+Your task is to write a highly compelling, concise, and metric-driven Cover Letter.
 You will write it exactly as it should appear physically, including placeholders for the header.
 
-## Instructions:
-1. Use a standard business letter format.
-2. The letter MUST be tailored to the provided Job Description, proving the candidate's Domain Match.
-3. The letter MUST use the candidate's accomplishments from their Resume to prove they are the best fit.
-4. Keep the tone confident, professional, and engaging.
-5. Return the generated cover letter AS PURE HTML text. Do NOT wrap it in a markdown block. Use semantic HTML like <p>, <strong>, and <br/> where appropriate so it renders cleanly in a rich-text editor (TipTap).
+## Core Directives:
+1. NO FLUFF: Absolutely do not use generic opening phrases like "I am writing with immense enthusiasm" or "I am thrilled to apply." Get straight to the point.
+2. LENGTH: Keep the entire letter under 300 words. Engineers and recruiters skim, so optimize for high-impact readability.
+3. NO SKILL GAPS: Do not mention technologies the candidate does not know or is "eager to learn." Focus entirely on the immediate value they bring on day one.
+4. FORMATTING: Return the generated cover letter AS PURE HTML text. Do NOT wrap it in a markdown block. Use semantic HTML like <p>, <ul>, <li>, <strong>, and <br/> where appropriate so it renders cleanly in a rich-text editor (TipTap).
+
+## Required Structure:
+1. Header: Standard business letter placeholders (Date, Hiring Manager Name, Company, Address).
+2. The Hook (1 short paragraph): State the target role, mention one specific thing about the company's mission from the JD, and state the candidate's core value proposition (e.g., "I build scalable, sub-100ms AI pipelines...").
+3. The Highlight Reel (3-4 Bullet Points): Extract the top 3-4 achievements from the candidate's resume that directly map to the Job Description's hardest requirements. You MUST prioritize bullet points that include hard metrics (e.g., latency reduction, user count, deployment speed) and the specific technical stack used (e.g., FastAPI, Redis, LangChain). Use <strong> tags to emphasize the metrics and tech stack.
+4. The Culture Fit (1 short paragraph): Briefly tie the candidate's problem-solving approach and technical agility to the company's goals.
+5. Call to Action: A single, confident closing sentence pointing to an interview, followed by the sign-off.
 
 ## Candidate Resume Information:
 ${originalResumeText.substring(0, 10000)}
