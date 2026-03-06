@@ -56,28 +56,62 @@ export default function CoverLetterPage() {
   const handleCopy = async () => {
     if (!editorRef.current) return;
     const htmlContent = editorRef.current.getHTML();
+    const textContent = htmlContent.replace(/<[^>]*>?/gm, '');
+    let success = false;
     
+    // Attempt 1: Rich Text Clipboard (Chromium / Safari Secure Context)
     try {
-      const blobHtml = new Blob([htmlContent], { type: "text/html" });
-      // Strip HTML for plain text fallback
-      const textContent = htmlContent.replace(/<[^>]*>?/gm, '');
-      const blobText = new Blob([textContent], { type: "text/plain" });
-      
-      const item = new ClipboardItem({
-        "text/html": blobHtml,
-        "text/plain": blobText,
-      });
-      
-      await navigator.clipboard.write([item]);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
+      if (typeof navigator !== "undefined" && navigator.clipboard && typeof ClipboardItem !== "undefined") {
+        const blobHtml = new Blob([htmlContent], { type: "text/html" });
+        const blobText = new Blob([textContent], { type: "text/plain" });
+        
+        const item = new ClipboardItem({
+          "text/html": blobHtml,
+          "text/plain": blobText,
+        });
+        
+        await navigator.clipboard.write([item]);
+        success = true;
+      }
     } catch (err) {
-      console.error("Failed to copy rich text", err);
-      // Fallback for older browsers
-      const textContent = htmlContent.replace(/<[^>]*>?/gm, '');
-      await navigator.clipboard.writeText(textContent);
+      console.warn("Rich text AsyncClipboard API failed:", err);
+    }
+
+    // Attempt 2: Plain Text Async Clipboard (Firefox or general HTTP fallback)
+    if (!success) {
+      try {
+        if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(textContent);
+          success = true;
+        }
+      } catch (err) {
+        console.warn("Plain text AsyncClipboard API failed:", err);
+      }
+    }
+
+    // Attempt 3: Legacy execCommand Fallback (Insecure Contexts like 192.168 local network IPs)
+    if (!success) {
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = textContent;
+        // Keep hidden
+        textArea.style.position = "absolute";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        success = document.execCommand("copy");
+        document.body.removeChild(textArea);
+      } catch (err) {
+        console.error("ExecCommand fallback completely failed:", err);
+      }
+    }
+
+    if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
+    } else {
+      alert("Failed to copy to clipboard automatically. Your browser may be blocking access.");
     }
   };
 
@@ -99,11 +133,11 @@ export default function CoverLetterPage() {
               </p>
             </div>
             
-            <div className="flex gap-3">
+            <div className="flex items-center gap-2">
               <button
                 onClick={generateCoverLetter}
                 disabled={isGenerating}
-                className="bg-accent/10 text-accent px-4 py-2 rounded-lg font-bold text-sm hover:bg-accent/20 transition-colors disabled:opacity-50"
+                className="bg-accent/10 text-accent px-3 py-1.5 rounded-md font-medium text-sm hover:bg-accent/20 transition-colors disabled:opacity-50"
               >
                 {isGenerating ? "Writing..." : (coverLetterHTML ? "Regenerate" : "Generate Now")}
               </button>
@@ -112,16 +146,16 @@ export default function CoverLetterPage() {
                 <>
                   <button
                     onClick={handleCopy}
-                    className="bg-surface text-primary border border-primary/20 px-4 py-2 rounded-lg font-bold text-sm hover:bg-primary/5 transition-colors shadow-sm flex items-center gap-2"
+                    className="flex items-center gap-1.5 bg-surface text-primary border border-primary/20 px-3 py-1.5 rounded-md font-medium text-sm hover:bg-primary/5 transition-colors shadow-sm"
                   >
-                    {copied ? <Check size={16} className="text-[#04b304]" /> : <Copy size={16} />}
-                    {copied ? "Copied!" : "Copy to Clipboard"}
+                    {copied ? <Check size={14} className="text-[#04b304]" /> : <Copy size={14} />}
+                    {copied ? "Copied!" : "Copy"}
                   </button>
                   <button
                     onClick={handlePrint}
-                    className="bg-accent text-surface px-4 py-2 rounded-lg font-bold text-sm hover:bg-accent/90 transition-colors shadow-lg flex items-center gap-2"
+                    className="flex items-center gap-1.5 bg-accent text-surface px-3 py-1.5 rounded-md font-medium text-sm hover:bg-accent/90 transition-colors shadow-sm"
                   >
-                    <Download size={16} /> Export PDF
+                    <Download size={14} /> Export
                   </button>
                 </>
               )}
