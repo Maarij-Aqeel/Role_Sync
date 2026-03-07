@@ -21,7 +21,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
     }
   }, [isRegenerating, editor]);
 
-  const { originalResumeText, jobDescription } = useWorkspaceStore();
+  const { originalResumeText, jobDescription, resumeFile } = useWorkspaceStore();
 
   const handleRegenerate = async () => {
     setIsRegenerating(true);
@@ -53,13 +53,33 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
 
   const handleGenerateLatex = async () => {
     setIsGeneratingLatex(true);
-    // TODO: Call existing LLM LaTeX API, then setLatexCode(result)
-    
-    // Simulating API call for now
-    setTimeout(() => {
-      setLatexCode("% Simulated LaTeX Export\\n\\documentclass{article}");
+    try {
+      const htmlContent = editor?.getHTML() || "";
+      if (!htmlContent) throw new Error("Editor is empty");
+
+      const formData = new FormData();
+      if (resumeFile) formData.append("resumeFile", resumeFile);
+      formData.append("htmlContent", htmlContent);
+
+      const res = await fetch("/api/generate-latex", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Failed to generate LaTeX");
+      const data = await res.json();
+      
+      if (data.latexCode) {
+        setLatexCode(data.latexCode);
+      } else {
+        throw new Error(data.error || "Unknown error generating LaTeX");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error generating LaTeX.");
+    } finally {
       setIsGeneratingLatex(false);
-    }, 2000);
+    }
   };
 
   const handleCopyLatex = async () => {
