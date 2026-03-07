@@ -91,7 +91,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
   };
 
   return (
-    <div className="bg-slate-900/50 backdrop-blur-md border-b border-white/10 p-3 flex items-center justify-between shrink-0">
+    <div className="sticky top-4 z-10 w-full max-w-[800px] mx-auto bg-slate-900/80 backdrop-blur-md border border-slate-700/60 rounded-lg px-4 py-3 flex justify-between items-center shadow-xl">
       <div className="flex items-center gap-2">
         <button
           onClick={handleRegenerate}

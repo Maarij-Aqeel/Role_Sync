@@ -52,7 +52,7 @@ export const ResumeEditor = forwardRef<ResumeEditorHandle, ResumeEditorProps>(
       editorProps: {
         attributes: {
           class:
-            "prose prose-sm max-w-none focus:outline-none min-h-[500px] p-6 text-primary",
+            "prose prose-sm max-w-none focus:outline-none min-h-[800px] text-slate-300 outline-none",
         },
       },
     });
@@ -114,9 +114,9 @@ export const ResumeEditor = forwardRef<ResumeEditorHandle, ResumeEditorProps>(
     }));
 
     return (
-      <div className="bg-surface rounded-xl border border-primary/10 shadow-sm overflow-hidden flex flex-col h-full">
+      <div className="bg-slate-950 shadow-inner overflow-y-auto h-full w-full flex flex-col relative items-center [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full rounded-2xl">
         <EditorToolbar editor={editor} />
-        <div className="flex-1 overflow-y-auto relative">
+        <div className="w-full max-w-[800px] shrink-0 mx-auto bg-slate-900 border border-slate-700/60 shadow-2xl shadow-black/50 rounded-xl px-10 py-16 mb-20 mt-4">
           <EditorContent editor={editor} />
         </div>
       </div>

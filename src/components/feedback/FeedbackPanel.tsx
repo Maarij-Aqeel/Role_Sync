@@ -5,6 +5,23 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useFeedbackStore } from "@/store/useFeedbackStore";
 import { CheckCircle2, AlertTriangle, MessageSquare, Target, Hash } from "lucide-react";
 
+const formatWithCodeBlocks = (text: string) => {
+  if (!text) return text;
+  // Splits by both single and double quotes, preserving the tokens
+  const parts = text.split(/(['"][^'"]+['"])/g);
+  return parts.map((part, i) => {
+    if ((part.startsWith("'") && part.endsWith("'")) || (part.startsWith('"') && part.endsWith('"'))) {
+      const cleanWord = part.slice(1, -1);
+      return (
+        <code key={i} className="font-mono text-[11px] bg-slate-950 px-1.5 py-0.5 mx-0.5 rounded text-rose-300 border border-slate-800">
+          {cleanWord}
+        </code>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+};
+
 export const FeedbackPanel = () => {
   const { interviewerCritique, repetitiveWords, sectionAnalysis, uiHighlights, setActiveHighlight, activeHighlight } = useFeedbackStore();
 
@@ -32,7 +49,7 @@ export const FeedbackPanel = () => {
         <h3 className="font-bold text-primary">Resume Feedback</h3>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+      <div className="flex-1 overflow-y-auto p-4 space-y-6 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full">
         {/* Interviewer Critique */}
         <AnimatePresence>
           {interviewerCritique && (
@@ -50,7 +67,7 @@ export const FeedbackPanel = () => {
                   </span>
                 )}
               </div>
-              <p className="text-sm text-primary/80 leading-relaxed font-medium">{interviewerCritique.summary}</p>
+              <p className="text-sm text-primary/80 leading-relaxed font-medium">{formatWithCodeBlocks(interviewerCritique.summary)}</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -74,7 +91,7 @@ export const FeedbackPanel = () => {
                       )}
                       <span className="text-sm font-bold text-primary capitalize">{section}</span>
                     </div>
-                    <p className="text-xs text-primary/70">{data.message}</p>
+                    <p className="text-xs text-primary/70 mt-1">{formatWithCodeBlocks(data.message)}</p>
                   </div>
                 );
               })}
@@ -146,7 +163,7 @@ export const FeedbackPanel = () => {
                        onClick={() => handlePhraseClick(hl.exactPhrase)}>
                     <div className="flex flex-col gap-2">
                       <p className="text-[13px] font-bold text-accent italic">"{hl.exactPhrase}"</p>
-                      <p className="text-xs text-primary/80 leading-relaxed font-medium">{hl.reason}</p>
+                      <p className="text-xs text-primary/80 leading-relaxed font-medium">{formatWithCodeBlocks(hl.reason)}</p>
                       <div className="bg-primary/5 border border-primary/10 p-2.5 rounded-lg text-xs text-[#04b304] font-bold">
                         <span className="opacity-70 font-medium text-primary mr-1">Rewrite:</span> 
                         {hl.suggestedRewrite}

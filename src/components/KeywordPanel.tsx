@@ -37,7 +37,7 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
         </span>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
+      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full">
         
         {/* Domain Fit Keywords Section */}
         {domainSkills.length > 0 && (
@@ -86,7 +86,7 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
                 >
                   <span className="font-bold border-b border-accent/20 group-hover:border-surface/40 pb-1 w-full flex justify-between">
                     <span>Rewrite Bullet Point</span>
-                    <span className="text-[10px] uppercase font-bold tracking-widest opacity-60">Action</span>
+                    <span className="px-3 py-1 text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded hover:bg-rose-500/20 transition-colors">Action</span>
                   </span>
                   <span className="text-xs opacity-90 mt-1 leading-relaxed">
                     &quot;{mod.rewritten_text}&quot;
