@@ -25,43 +25,92 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
   };
 
   return (
-    <div className="w-full flex flex-col items-center justify-center pt-16 pb-24 px-4 overflow-hidden">
+    <div className="w-full relative flex flex-col items-center justify-start pt-24 pb-32 px-4 overflow-hidden bg-[#0a0f1c]">
+      {/* Background Grid Pattern (Opacity 5%) */}
+      <div 
+        className="absolute inset-0 z-0 opacity-5"
+        style={{
+          backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
+          backgroundSize: '40px 40px'
+        }}
+      />
+      
+      {/* Massive Centered Blurred Radial Gradient */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-[#EA5455] to-[#a855f7] rounded-full blur-[120px] opacity-15 z-0" />
+
       {/* Hero Section */}
       <motion.div
         initial="hidden"
         animate="visible"
         variants={containerVariants}
-        className="max-w-4xl text-center flex flex-col items-center mb-24"
+        className="max-w-5xl text-center flex flex-col items-center z-10 relative mb-24"
       >
-        <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-semibold mb-8">
-          <Sparkles size={16} />
+        {/* Top Badge ("The Next Generation ATS Optimizer") */}
+        <motion.div 
+          variants={itemVariants} 
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white text-sm font-medium mb-8 backdrop-blur-md shadow-lg"
+        >
+          <Sparkles size={16} className="text-[#EA5455] drop-shadow-[0_0_8px_rgba(234,84,85,0.8)]" />
           <span>The Next Generation ATS Optimizer</span>
         </motion.div>
         
-        <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-extrabold text-primary mb-6 leading-tight tracking-tight">
-          Your Resume, <br className="hidden md:block"/>
-          <span className="text-accent relative">
-            Perfectly Aligned
-            <svg className="absolute w-full h-4 -bottom-1 left-0 text-accent/30" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <path d="M0,50 Q50,100 100,50" stroke="currentColor" strokeWidth="8" fill="transparent" />
-            </svg>
+        {/* Main Heading */}
+        <motion.h1 
+          variants={itemVariants} 
+          className="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 leading-[1.1] tracking-tight text-white"
+        >
+          Your Resume,<br className="hidden md:block"/>
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#EA5455] to-[#ff8a8a]">
+             Perfectly Aligned
           </span>
         </motion.h1>
         
-        <motion.p variants={itemVariants} className="text-lg md:text-xl text-primary/70 mb-10 max-w-2xl leading-relaxed">
+        {/* Subheadline */}
+        <motion.p 
+          variants={itemVariants} 
+          className="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl leading-relaxed mx-auto font-medium"
+        >
           Don't let the algorithm reject you. RoleSync AI simulates enterprise ATS systems to score your resume against job descriptions, injecting critical domain keywords so you never miss an interview.
         </motion.p>
         
+        {/* CTA Button */}
         <motion.button
           variants={itemVariants}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={onStart}
-          className="group relative inline-flex items-center justify-center gap-3 bg-accent text-surface px-8 py-4 rounded-2xl font-bold text-lg hover:bg-accent/90 transition-all shadow-xl shadow-accent/25 hover:shadow-2xl hover:shadow-accent/40"
+          className="group relative inline-flex items-center justify-center gap-3 bg-[#EA5455] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-[0_0_30px_rgba(234,84,85,0.4)] hover:shadow-[0_0_40px_rgba(234,84,85,0.6)] border-t border-white/20"
         >
           Let's get started
           <ArrowRight className="group-hover:translate-x-1 transition-transform" />
         </motion.button>
+        
+        {/* Floating Dashboard Preview Anchor */}
+        <motion.div 
+          variants={{
+             hidden: { opacity: 0, y: 50 },
+             visible: { 
+               opacity: 1, 
+               y: 0, 
+               transition: { duration: 0.8, ease: "easeOut" } 
+             }
+          }}
+          className="mt-20 w-full max-w-4xl aspect-video rounded-2xl bg-slate-800/50 backdrop-blur-md border border-white/10 overflow-hidden relative shadow-2xl"
+          animate={{ y: [0, -15, 0] }}
+          transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+        >
+          {/* Internal Dashboard Mock Styling */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent">
+             <div className="h-10 border-b border-white/10 flex items-center px-4 gap-2 bg-slate-900/50">
+                <div className="w-3 h-3 rounded-full bg-red-400/50" />
+                <div className="w-3 h-3 rounded-full bg-amber-400/50" />
+                <div className="w-3 h-3 rounded-full bg-green-400/50" />
+             </div>
+             <div className="p-8 flex items-center justify-center h-[calc(100%-2.5rem)] text-slate-500 font-medium">
+                [ Interactive Dashboard Preview Elements ]
+             </div>
+          </div>
+        </motion.div>
       </motion.div>
 
       {/* Feature Cards Section */}
