@@ -7,6 +7,8 @@ import { Mark, mergeAttributes } from "@tiptap/core";
 import { FileEdit } from "lucide-react";
 
 import { Modification } from "./KeywordPanel";
+import { AIFeedbackHighlight } from "./editor/HighlightExtension";
+import { useFeedbackStore } from "@/store/useFeedbackStore";
 
 export interface ResumeEditorHandle {
   getHTML: () => string;
@@ -40,8 +42,10 @@ export const KeywordMark = Mark.create({
 
 export const ResumeEditor = forwardRef<ResumeEditorHandle, ResumeEditorProps>(
   ({ initialContent, title = "Resume Editor" }, ref) => {
+    const { activeHighlight } = useFeedbackStore();
+
     const editor = useEditor({
-      extensions: [StarterKit, KeywordMark],
+      extensions: [StarterKit, KeywordMark, AIFeedbackHighlight],
       content: initialContent,
       immediatelyRender: false,
       editorProps: {
@@ -57,6 +61,15 @@ export const ResumeEditor = forwardRef<ResumeEditorHandle, ResumeEditorProps>(
         editor.commands.setContent(initialContent);
       }
     }, [initialContent, editor]);
+
+    useEffect(() => {
+      if (!editor) return;
+      if (activeHighlight) {
+        editor.commands.highlightPhrase(activeHighlight);
+      } else {
+        editor.commands.clearAiHighlights();
+      }
+    }, [activeHighlight, editor]);
 
     useImperativeHandle(ref, () => ({
       getHTML: () => editor?.getHTML() || "",
