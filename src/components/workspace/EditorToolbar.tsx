@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Editor } from "@tiptap/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RefreshCw, Code, Copy, Check } from "lucide-react";
+import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 
 interface EditorToolbarProps {
   editor: Editor | null;
@@ -20,14 +21,34 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
     }
   }, [isRegenerating, editor]);
 
+  const { originalResumeText, jobDescription } = useWorkspaceStore();
+
   const handleRegenerate = async () => {
     setIsRegenerating(true);
-    // TODO: Call AI route with base resume + JD, then editor.commands.setContent(newHtml)
-    
-    // Simulating API call for now
-    setTimeout(() => {
+    try {
+      if (!originalResumeText || !jobDescription) {
+        alert("Missing context to regenerate.");
+        return;
+      }
+      
+      const res = await fetch("/api/regenerate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resumeText: originalResumeText, jdText: jobDescription }),
+      });
+      
+      if (!res.ok) throw new Error("Failed to regenerate");
+      const data = await res.json();
+      
+      if (data.regeneratedHtml && editor) {
+        editor.commands.setContent(data.regeneratedHtml);
+      }
+    } catch (e) {
+      console.error("Regenerate error:", e);
+      alert("Error regenerating resume.");
+    } finally {
       setIsRegenerating(false);
-    }, 2000);
+    }
   };
 
   const handleGenerateLatex = async () => {
