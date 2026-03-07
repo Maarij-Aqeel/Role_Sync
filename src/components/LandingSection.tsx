@@ -97,7 +97,7 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
                transition: { duration: 0.8, ease: "easeOut" } 
              }
           }}
-          className="mt-20 w-full max-w-4xl aspect-video rounded-2xl bg-slate-800/50 backdrop-blur-md border border-white/10 overflow-hidden relative shadow-2xl"
+          className="mt-20 w-full max-w-4xl aspect-video rounded-2xl bg-slate-800/50 backdrop-blur-md border border-white/10 overflow-hidden relative shadow-2xl shadow-rose-500/15"
           animate={{ y: [0, -15, 0] }}
           transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
         >
@@ -260,7 +260,7 @@ const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode; titl
         {icon}
       </div>
       <h3 className="text-xl font-bold text-white mt-1">{title}</h3>
-      <p className="text-slate-400 text-sm leading-relaxed font-medium">{description}</p>
+      <p className="text-slate-400 text-[15px] leading-loose font-medium">{description}</p>
     </motion.div>
   );
 };
