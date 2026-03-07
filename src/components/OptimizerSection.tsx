@@ -1,143 +1,243 @@
 "use client";
 
-import React, { useRef, useState } from "react";
-import { ScoreDisplay } from "./ScoreDisplay";
-import { KeywordPanel, Modification } from "./KeywordPanel";
-import { FeedbackPanel } from "./feedback/FeedbackPanel";
-import { ResumeEditor, ResumeEditorHandle } from "./ResumeEditor";
-import { ArrowLeft } from "lucide-react";
+import { forwardRef, useImperativeHandle, useState } from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 
-interface AnalysisResult {
-  ats_score: number;
-  domain_score: number;
-  modifications: Modification[];
-  resumeHTML: string;
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface ResumeEditorHandle {
+  injectKeyword: (mod: { keyword_added: string; suggested_rewrite: string }) => void;
+  getHTML: () => string;
 }
 
-interface OptimizerSectionProps {
-  result: AnalysisResult;
-  resumeFile: File;
-  onBack: () => void;
-}
-
-export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
-  result,
-  resumeFile,
-  onBack,
-}) => {
-  const editorRef = useRef<ResumeEditorHandle>(null);
-  const [atsScore, setAtsScore] = useState(result.ats_score);
-  const [domainScore, setDomainScore] = useState(result.domain_score);
-  const [pendingModifications, setPendingModifications] = useState<Modification[]>(
-    result.modifications
-  );
-  const [injectedModifications, setInjectedModifications] = useState<Modification[]>([]);
-  const [activeTab, setActiveTab] = useState<"editor" | "sidebar">("editor");
-  const [sidebarTab, setSidebarTab] = useState<"keywords" | "feedback">("keywords");
-
-  const handleModificationClick = (modObj: Modification) => {
-    editorRef.current?.injectKeyword(modObj);
-
-    setPendingModifications((prev) => prev.filter((m) => m.keyword_added !== modObj.keyword_added));
-    setInjectedModifications((prev) => [...prev, modObj]);
-
-    // Dynamically boost Domain score significantly per keyword, and ATS slightly
-    const domainBoost = Math.floor(Math.random() * 5) + 3; // 3 to 7 points
-    setDomainScore((prev) => Math.min(100, prev + domainBoost));
-
-    const atsBoost = Math.floor(Math.random() * 3) + 1; // 1 to 3 points
-    setAtsScore((prev) => Math.min(100, prev + atsBoost));
+interface ResumeEditorProps {
+  initialContent?: string;
+  result?: {
+    ats_score: number;
+    domain_score: number;
+    modifications: any[];
+    resumeHTML: any;
   };
+  resumeFile?: File;
+  onBack?: () => void;
+}
+
+// ─── Toolbar ─────────────────────────────────────────────────────────────────
+
+function Toolbar({ editor, zoom, onZoomIn, onZoomOut, onZoomReset }: {
+  editor: any;
+  zoom: number;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onZoomReset: () => void;
+}) {
+  if (!editor) return null;
+
+  const btn = (active: boolean, onClick: () => void, label: string) => (
+    <button
+      onClick={onClick}
+      title={label}
+      className={`
+        px-2.5 py-1 text-xs rounded font-mono font-semibold transition-all
+        ${active
+          ? "bg-accent/20 text-accent border border-accent/30"
+          : "text-primary/50 hover:text-primary hover:bg-primary/10 border border-transparent"
+        }
+      `}
+    >
+      {label}
+    </button>
+  );
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-4 lg:p-6 flex flex-col gap-6">
-      {/* Top Bar */}
-      <div className="relative flex items-center justify-center w-full py-2">
-        <button
-          onClick={onBack}
-          className="absolute left-0 flex items-center gap-2 text-sm font-medium text-primary/70 hover:text-primary transition-colors z-10"
-        >
-          <ArrowLeft size={16} />
-          New Analysis
-        </button>
-
-        <ScoreDisplay atsScore={atsScore} domainScore={domainScore} />
+    <div className="flex items-center justify-between px-4 py-2 bg-surface border-b border-primary/10 rounded-t-xl shrink-0">
+      {/* Formatting controls */}
+      <div className="flex items-center gap-1">
+        {btn(editor.isActive("bold"), () => editor.chain().focus().toggleBold().run(), "B")}
+        {btn(editor.isActive("italic"), () => editor.chain().focus().toggleItalic().run(), "I")}
+        {btn(editor.isActive("bulletList"), () => editor.chain().focus().toggleBulletList().run(), "• List")}
+        <div className="w-px h-4 bg-primary/10 mx-1" />
+        {btn(false, () => editor.chain().focus().undo().run(), "↩ Undo")}
+        {btn(false, () => editor.chain().focus().redo().run(), "↪ Redo")}
       </div>
 
-      {/* Mobile Tab Navigation */}
-      <div className="flex lg:hidden border-b border-primary/10">
-        <button
-          onClick={() => setActiveTab("editor")}
-          className={`flex-1 py-3 text-sm font-semibold text-center transition-colors ${
-            activeTab === "editor"
-              ? "text-accent border-b-2 border-accent"
-              : "text-primary/50"
-          }`}
-        >
-          Resume Editor
+      {/* Zoom controls */}
+      <div className="flex items-center gap-1.5">
+        <button onClick={onZoomOut} className="w-6 h-6 flex items-center justify-center text-primary/50 hover:text-primary hover:bg-primary/10 rounded font-mono text-sm transition-all">−</button>
+        <button onClick={onZoomReset} className="text-xs font-mono text-primary/40 hover:text-primary/70 transition-colors min-w-[3rem] text-center">
+          {Math.round(zoom * 100)}%
         </button>
-        <button
-          onClick={() => setActiveTab("sidebar")}
-          className={`flex-1 py-3 text-sm font-semibold text-center transition-colors ${
-            activeTab === "sidebar"
-              ? "text-accent border-b-2 border-accent"
-              : "text-primary/50"
-          }`}
-        >
-          Analysis Tools
-        </button>
-      </div>
-
-      {/* Split Screen */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 flex-1">
-        {/* Left: Resume Editor */}
-        <div
-          className={`${activeTab === "editor" ? "flex" : "hidden"} lg:flex min-h-[500px] flex-col`}
-        >
-          <ResumeEditor ref={editorRef} initialContent={result.resumeHTML} />
-        </div>
-
-        {/* Right: Analysis Sidebar */}
-        <div
-          className={`${
-            activeTab === "sidebar" ? "flex" : "hidden"
-          } lg:flex lg:sticky lg:top-20 lg:self-start h-[calc(100vh-140px)] flex-col`}
-        >
-          <div className="flex bg-primary/5 rounded-t-xl p-1 gap-1 border border-primary/10 border-b-0 shrink-0">
-            <button
-              onClick={() => setSidebarTab("keywords")}
-              className={`flex-1 py-2 text-xs font-bold text-center rounded-lg transition-all ${
-                sidebarTab === "keywords"
-                  ? "bg-surface text-accent shadow-sm"
-                  : "text-primary/60 hover:text-primary hover:bg-primary/5"
-              }`}
-            >
-              Missing Skills
-            </button>
-            <button
-              onClick={() => setSidebarTab("feedback")}
-              className={`flex-1 py-2 text-xs font-bold text-center rounded-lg transition-all ${
-                sidebarTab === "feedback"
-                  ? "bg-surface text-accent shadow-sm"
-                  : "text-primary/60 hover:text-primary hover:bg-primary/5"
-              }`}
-            >
-              AI Feedback
-            </button>
-          </div>
-          
-          <div className="flex-1 overflow-hidden flex flex-col">
-            {sidebarTab === "keywords" && (
-              <KeywordPanel
-                modifications={pendingModifications}
-                injectedModifications={injectedModifications}
-                onModificationClick={handleModificationClick}
-              />
-            )}
-            {sidebarTab === "feedback" && <FeedbackPanel />}
-          </div>
-        </div>
+        <button onClick={onZoomIn} className="w-6 h-6 flex items-center justify-center text-primary/50 hover:text-primary hover:bg-primary/10 rounded font-mono text-sm transition-all">+</button>
       </div>
     </div>
   );
-};
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+export const OptimizerSection = forwardRef<ResumeEditorHandle, ResumeEditorProps>(
+  ({ initialContent, result }, ref) => {
+    const [zoom, setZoom] = useState(1);
+    
+    const contentToLoad = initialContent || result?.resumeHTML || "";
+
+    const editor = useEditor({
+      extensions: [StarterKit],
+      content: contentToLoad,
+      immediatelyRender: false,
+      editorProps: {
+        attributes: {
+          // This is the actual paper — white, A4-proportioned, with deep shadow
+          class: "resume-paper focus:outline-none",
+        },
+      },
+    });
+
+    useImperativeHandle(ref, () => ({
+      injectKeyword: (mod) => {
+        if (!editor) return;
+        editor
+          .chain()
+          .focus("end")
+          .insertContent(` ${mod.keyword_added}`)
+          .run();
+      },
+      getHTML: () => editor?.getHTML() ?? "",
+    }));
+
+    const clampedZoom = Math.min(1.4, Math.max(0.5, zoom));
+
+    return (
+      <div className="flex flex-col h-full rounded-xl overflow-hidden border border-primary/10">
+        <Toolbar
+          editor={editor}
+          zoom={clampedZoom}
+          onZoomIn={() => setZoom((z) => Math.min(1.4, z + 0.1))}
+          onZoomOut={() => setZoom((z) => Math.max(0.5, z - 0.1))}
+          onZoomReset={() => setZoom(1)}
+        />
+
+        {/* Dark canvas — this is the "desk" the paper sits on */}
+        <div
+          className="resume-canvas flex-1 overflow-y-auto overflow-x-hidden"
+          style={{
+            // dot-grid work surface
+            background: "#13161f",
+            backgroundImage: "radial-gradient(circle, #1e2130 1.5px, transparent 1.5px)",
+            backgroundSize: "22px 22px",
+            padding: "32px 16px 56px",
+          }}
+        >
+          {/*
+            Zoom wrapper — scales the paper without affecting the scroll container.
+            margin-bottom compensates so the container doesn't cut off the bottom.
+          */}
+          <div
+            style={{
+              transform: `scale(${clampedZoom})`,
+              transformOrigin: "top center",
+              // When zoomed out, pull up the empty space below
+              marginBottom: clampedZoom < 1 ? `${-(1 - clampedZoom) * 960 * 0.5}px` : "0",
+              transition: "transform 0.15s ease",
+            }}
+          >
+            <EditorContent editor={editor} />
+          </div>
+        </div>
+
+        {/* Global styles for the paper and its content */}
+        <style jsx global>{`
+          /* ── The paper itself ── */
+          .resume-paper {
+            width: 680px;
+            min-height: 960px;
+            margin: 0 auto;
+            padding: 56px 64px;
+            background: #fdfcfb;
+            color: #1a1a1a;
+            border-radius: 2px;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 13px;
+            line-height: 1.65;
+
+            /* Layered shadows = realistic paper depth */
+            box-shadow:
+              0 1px 1px rgba(0, 0, 0, 0.18),
+              0 2px 2px rgba(0, 0, 0, 0.18),
+              0 4px 4px rgba(0, 0, 0, 0.18),
+              0 10px 20px rgba(0, 0, 0, 0.25),
+              0 20px 40px rgba(0, 0, 0, 0.22);
+          }
+
+          /* ── Typography inside the paper ── */
+          .resume-paper h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-align: center;
+            margin-bottom: 4px;
+            color: #111;
+          }
+
+          .resume-paper h2 {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #111;
+            margin: 20px 0 8px;
+            padding-bottom: 4px;
+            border-bottom: 1.5px solid #1a1a1a;
+          }
+
+          .resume-paper h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #111;
+            margin: 0 0 2px;
+          }
+
+          .resume-paper p {
+            margin: 3px 0;
+            color: #333;
+          }
+
+          .resume-paper ul {
+            margin: 4px 0 0 18px;
+            padding: 0;
+          }
+
+          .resume-paper li {
+            margin-bottom: 3px;
+            color: #333;
+          }
+
+          .resume-paper strong {
+            font-weight: 700;
+            color: #111;
+          }
+
+          .resume-paper em {
+            color: #555;
+          }
+
+          /* Tiptap removes default focus ring — we already do that via editorProps */
+          .ProseMirror-focused {
+            outline: none;
+          }
+
+          /* Smooth scrollbar on the canvas */
+          .resume-canvas::-webkit-scrollbar { width: 6px; }
+          .resume-canvas::-webkit-scrollbar-track { background: transparent; }
+          .resume-canvas::-webkit-scrollbar-thumb {
+            background: #2e3347;
+            border-radius: 99px;
+          }
+        `}</style>
+      </div>
+    );
+  }
+);
+
+OptimizerSection.displayName = "OptimizerSection";
