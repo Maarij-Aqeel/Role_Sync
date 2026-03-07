@@ -28,15 +28,17 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
     <div className="w-full relative flex flex-col items-center justify-start pt-24 pb-32 px-4 overflow-hidden bg-[#0a0f1c]">
       {/* Background Grid Pattern (Opacity 5%) */}
       <div 
-        className="absolute inset-0 z-0 opacity-5"
+        className="absolute inset-0 z-0 opacity-[0.03]"
         style={{
           backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
-          backgroundSize: '40px 40px'
+          backgroundSize: '40px 40px',
+          maskImage: 'radial-gradient(circle at center, black 10%, transparent 80%)',
+          WebkitMaskImage: 'radial-gradient(circle at center, black 10%, transparent 80%)'
         }}
       />
       
       {/* Massive Centered Blurred Radial Gradient */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-[#EA5455] to-[#a855f7] rounded-full blur-[120px] opacity-15 z-0" />
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-rose-500/10 rounded-full blur-3xl -z-10" />
 
       {/* Hero Section */}
       <motion.div
@@ -100,14 +102,76 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
           transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
         >
           {/* Internal Dashboard Mock Styling */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent">
-             <div className="h-10 border-b border-white/10 flex items-center px-4 gap-2 bg-slate-900/50">
-                <div className="w-3 h-3 rounded-full bg-red-400/50" />
-                <div className="w-3 h-3 rounded-full bg-amber-400/50" />
-                <div className="w-3 h-3 rounded-full bg-green-400/50" />
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 to-slate-800/20 flex flex-col">
+             <div className="h-10 border-b border-white/10 flex items-center px-4 gap-2 bg-slate-900/80 shrink-0 backdrop-blur-xl">
+                <div className="w-3 h-3 rounded-full bg-red-500/80 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                <div className="w-3 h-3 rounded-full bg-amber-500/80 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                <div className="w-3 h-3 rounded-full bg-emerald-500/80 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                <div className="ml-4 text-xs font-medium text-slate-500 font-mono hidden sm:block">rolesync-ai.sh</div>
              </div>
-             <div className="p-8 flex items-center justify-center h-[calc(100%-2.5rem)] text-slate-500 font-medium">
-                [ Interactive Dashboard Preview Elements ]
+             
+             {/* 2-Column Dashboard Layout */}
+             <div className="flex-1 flex p-4 sm:p-6 gap-6 overflow-hidden relative">
+               
+               {/* Dashboard Overlay Vignette to focus center */}
+               <div className="absolute inset-0 border-[40px] border-slate-900/20 blur-xl pointer-events-none z-10" />
+
+               {/* Left: Original PDF Mock UI */}
+               <div className="flex-1 bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-200 p-6 flex flex-col gap-4 overflow-hidden relative opacity-90 grayscale-[0.2]">
+                 <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-white via-white to-transparent z-10" />
+                 
+                 <div className="w-1/3 h-5 bg-slate-200 rounded-md mb-2" />
+                 <div className="w-2/3 h-3 bg-slate-100 rounded" />
+                 <div className="w-1/2 h-3 bg-slate-100 rounded" />
+                 
+                 <div className="w-full h-[1px] bg-slate-100 my-2" />
+                 
+                 <div className="w-1/4 h-4 bg-slate-200 rounded mb-1" />
+                 <div className="w-full h-2.5 bg-slate-100 rounded" />
+                 <div className="w-[90%] h-2.5 bg-slate-100 rounded" />
+                 <div className="w-[85%] h-2.5 bg-slate-100 rounded" />
+                 
+                 <div className="w-1/4 h-4 bg-slate-200 rounded mt-4 mb-1" />
+                 <div className="w-full h-2.5 bg-slate-100 rounded" />
+                 <div className="w-[95%] h-2.5 bg-slate-100 rounded" />
+                 <div className="w-[70%] h-2.5 bg-slate-100 rounded" />
+               </div>
+
+               {/* Right: TipTap Editor / Optimized Output UI */}
+               <div className="flex-[1.2] bg-[#0f172a] rounded-xl border border-rose-500/20 p-6 shadow-[0_0_40px_rgba(244,63,94,0.05)] flex flex-col gap-4 overflow-hidden text-slate-300 font-mono text-[13px] leading-relaxed relative">
+                 {/* Glowing Editor background blob */}
+                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] bg-rose-500/10 blur-[80px] rounded-full z-0 pointer-events-none" />
+                 
+                 <div className="relative z-10">
+                   <div className="text-rose-400 font-bold mb-3 tracking-widest text-xs opacity-80 uppercase flex items-center gap-2">
+                     <Target size={12} /> Optimization Engine
+                   </div>
+                   
+                   <p className="mb-4 text-slate-400">
+                     <span className="text-slate-500">const</span> <span className="text-[#a855f7]">ResumeEditor</span> = <span className="text-slate-500">() {"=>"}</span> {"{"}
+                   </p>
+                   
+                   <div className="pl-4 border-l-2 border-slate-800 space-y-3">
+                     <p>
+                       Spearheaded the migration of legacy monolith into 
+                       <mark className="bg-rose-500/20 text-rose-300 px-1.5 py-0.5 mx-1 rounded border border-rose-500/30 animate-pulse font-semibold">robust microservices</mark>
+                       infrastructure, decreasing deployment times by 40%.
+                     </p>
+                     
+                     <p>
+                       Engineered scalable backend pipelines leveraging 
+                       <mark className="bg-rose-500/20 text-rose-300 px-1.5 py-0.5 mx-1 rounded border border-rose-500/30 animate-pulse font-semibold" style={{ animationDelay: '0.5s' }}>Node.js and GraphQL</mark>
+                       handling 50k+ active operations/sec.
+                     </p>
+                     
+                     <div className="space-y-2 mt-6 opacity-30">
+                       <div className="w-full h-2 bg-slate-700 rounded" />
+                       <div className="w-[85%] h-2 bg-slate-700 rounded" />
+                       <div className="w-[90%] h-2 bg-slate-700 rounded" />
+                     </div>
+                   </div>
+                 </div>
+               </div>
              </div>
           </div>
         </motion.div>
@@ -122,8 +186,7 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
         className="w-full max-w-6xl"
       >
         <div className="text-center mb-16">
-          <motion.h2 variants={itemVariants} className="text-3xl font-bold text-primary mb-4">Why use RoleSync AI?</motion.h2>
-          <motion.div variants={itemVariants} className="h-1 w-20 bg-accent mx-auto rounded-full"></motion.div>
+          <motion.h2 variants={itemVariants} className="text-3xl font-bold text-white mb-4 tracking-tight">Why use RoleSync AI?</motion.h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -156,25 +219,27 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
         whileInView="visible"
         viewport={{ once: true }}
         variants={containerVariants}
-        className="mt-32 w-full max-w-4xl bg-primary text-surface rounded-[2.5rem] p-12 text-center relative overflow-hidden shadow-2xl"
+        className="mt-32 w-full max-w-4xl bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-[2.5rem] p-12 text-center relative overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]"
       >
-        {/* Abstract background shapes */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3"></div>
+        {/* Soft radial gradient glow from center */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.12),transparent_60%)] pointer-events-none" />
 
         <div className="relative z-10">
-          <motion.h3 variants={itemVariants} className="text-3xl md:text-4xl font-bold mb-6">Stop guessing what the ATS wants.</motion.h3>
-          <motion.p variants={itemVariants} className="text-primary-100 text-surface/80 max-w-xl mx-auto mb-10">
+          <motion.h3 variants={itemVariants} className="text-3xl md:text-5xl font-extrabold mb-6 text-white tracking-tight">
+            Stop guessing what the <span className="text-[#EA5455]">ATS</span> wants.
+          </motion.h3>
+          <motion.p variants={itemVariants} className="text-lg text-slate-300 max-w-xl mx-auto mb-10 leading-relaxed">
             Join thousands of candidates breaking through the automated screening filters using purely algorithmic semantic matching.
           </motion.p>
           <motion.button
             variants={itemVariants}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={onStart}
-            className="bg-surface text-primary px-8 py-4 rounded-xl font-bold hover:bg-surface/90 transition-colors shadow-lg"
+            className="group relative inline-flex items-center justify-center gap-3 bg-[#EA5455] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-[0_0_30px_rgba(234,84,85,0.4)] hover:shadow-[0_0_40px_rgba(234,84,85,0.6)] border-t border-white/20"
           >
             Optimize My Resume Now
+            <ArrowRight className="group-hover:translate-x-1 transition-transform" />
           </motion.button>
         </div>
       </motion.div>
@@ -189,14 +254,13 @@ const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode; titl
         hidden: { opacity: 0, y: 50 },
         visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } },
       }}
-      whileHover={{ y: -5, transition: { duration: 0.2 } }}
-      className="bg-surface border border-primary/5 rounded-3xl p-8 flex flex-col gap-4 shadow-sm hover:shadow-xl hover:border-accent/20 transition-all group"
+      className="bg-white/[0.03] backdrop-blur-sm border border-white/10 rounded-2xl p-8 flex flex-col gap-4 hover:bg-white/[0.05] hover:-translate-y-1 transition-all duration-300 group shadow-lg"
     >
-      <div className="w-16 h-16 rounded-2xl bg-accent/5 flex items-center justify-center group-hover:bg-accent/10 transition-colors">
+      <div className="w-12 h-12 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center p-2 shadow-[0_0_15px_rgba(244,63,94,0.15)] group-hover:shadow-[0_0_20px_rgba(244,63,94,0.25)] transition-shadow">
         {icon}
       </div>
-      <h3 className="text-xl font-bold text-primary mt-2">{title}</h3>
-      <p className="text-primary/60 text-sm leading-relaxed">{description}</p>
+      <h3 className="text-xl font-bold text-white mt-1">{title}</h3>
+      <p className="text-slate-400 text-sm leading-relaxed font-medium">{description}</p>
     </motion.div>
   );
 };
