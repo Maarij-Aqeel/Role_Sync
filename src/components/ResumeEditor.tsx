@@ -9,6 +9,7 @@ import { FileEdit } from "lucide-react";
 import { Modification } from "./KeywordPanel";
 import { AIFeedbackHighlight } from "./editor/HighlightExtension";
 import { useFeedbackStore } from "@/store/useFeedbackStore";
+import { EditorToolbar } from "./workspace/EditorToolbar";
 
 export interface ResumeEditorHandle {
   getHTML: () => string;
@@ -114,14 +115,8 @@ export const ResumeEditor = forwardRef<ResumeEditorHandle, ResumeEditorProps>(
 
     return (
       <div className="bg-surface rounded-xl border border-primary/10 shadow-sm overflow-hidden flex flex-col h-full">
-        <div className="p-4 bg-primary/5 border-b border-primary/10 flex items-center gap-2 shrink-0">
-          <FileEdit size={18} className="text-primary" />
-          <h3 className="font-bold text-primary text-sm">{title}</h3>
-          <span className="ml-auto text-xs text-primary/50">
-            Edit directly or click keywords to inject
-          </span>
-        </div>
-        <div className="flex-1 overflow-y-auto">
+        <EditorToolbar editor={editor} />
+        <div className="flex-1 overflow-y-auto relative">
           <EditorContent editor={editor} />
         </div>
       </div>

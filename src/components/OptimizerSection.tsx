@@ -5,7 +5,7 @@ import { ScoreDisplay } from "./ScoreDisplay";
 import { KeywordPanel, Modification } from "./KeywordPanel";
 import { FeedbackPanel } from "./feedback/FeedbackPanel";
 import { ResumeEditor, ResumeEditorHandle } from "./ResumeEditor";
-import { Download, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 interface AnalysisResult {
   ats_score: number;
@@ -34,7 +34,6 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
   const [injectedModifications, setInjectedModifications] = useState<Modification[]>([]);
   const [activeTab, setActiveTab] = useState<"editor" | "sidebar">("editor");
   const [sidebarTab, setSidebarTab] = useState<"keywords" | "feedback">("keywords");
-  const [isExporting, setIsExporting] = useState(false);
 
   const handleModificationClick = (modObj: Modification) => {
     editorRef.current?.injectKeyword(modObj);
@@ -50,48 +49,6 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
     setAtsScore((prev) => Math.min(100, prev + atsBoost));
   };
 
-  const handleDownloadPDF = async () => {
-    const html = editorRef.current?.getHTML();
-    if (!html) return;
-    
-    setIsExporting(true);
-    
-    try {
-      const formData = new FormData();
-      formData.append("resumeFile", resumeFile);
-      formData.append("htmlContent", html);
-
-      const response = await fetch("/api/export", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(
-          errorData?.error
-            ? `${errorData.error}: ${errorData.details || errorData.log || ""}`
-            : "Failed to generate PDF"
-        );
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "rolesync-optimized-resume.pdf";
-      document.body.appendChild(link);
-      link.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(link);
-    } catch (error: any) {
-      console.error("Export error:", error);
-      alert(`An error occurred while generating the PDF: ${error.message}`);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
   return (
     <div className="w-full max-w-7xl mx-auto p-4 lg:p-6 flex flex-col gap-6">
       {/* Top Bar */}
@@ -105,14 +62,6 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
         </button>
 
         <ScoreDisplay atsScore={atsScore} domainScore={domainScore} />
-
-        <button
-          onClick={handleDownloadPDF}
-          disabled={isExporting}
-          className="flex items-center gap-2 bg-accent text-surface px-5 py-3 rounded-xl font-bold text-sm hover:bg-accent/90 transition-colors shadow-lg shadow-accent/20 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isExporting ? "Generating Layout..." : <><Download size={16} /> Download PDF</>}
-        </button>
       </div>
 
       {/* Mobile Tab Navigation */}
