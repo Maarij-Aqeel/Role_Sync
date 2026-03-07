@@ -25,7 +25,7 @@ export const FeedbackPanel = () => {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="w-full h-full bg-surface border-l border-primary/10 flex flex-col overflow-hidden"
+      className="w-full h-full bg-surface rounded-b-xl border border-primary/10 border-t-0 shadow-sm flex flex-col overflow-hidden"
     >
       <div className="p-4 border-b border-primary/10 bg-primary/5 flex items-center gap-2 shrink-0">
         <Target size={18} className="text-accent" />

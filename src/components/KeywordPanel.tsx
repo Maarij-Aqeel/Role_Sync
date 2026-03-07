@@ -26,7 +26,7 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
   const actionableRewrites = modifications.filter((m) => m.type === "concept");
 
   return (
-    <div className="bg-surface rounded-xl border border-primary/10 shadow-sm flex flex-col h-[600px] overflow-hidden">
+    <div className="bg-surface rounded-b-xl border border-primary/10 border-t-0 shadow-sm flex flex-col h-full w-full overflow-hidden">
       <div className="p-4 bg-accent/5 border-b border-primary/10 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
           <Sparkles size={18} className="text-accent" />

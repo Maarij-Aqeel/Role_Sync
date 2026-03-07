@@ -143,7 +143,7 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 flex-1">
         {/* Left: Resume Editor */}
         <div
-          className={`${activeTab === "editor" ? "block" : "hidden"} lg:block min-h-[500px] flex flex-col`}
+          className={`${activeTab === "editor" ? "flex" : "hidden"} lg:flex min-h-[500px] flex-col`}
         >
           <ResumeEditor ref={editorRef} initialContent={result.resumeHTML} />
         </div>
@@ -151,8 +151,8 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
         {/* Right: Analysis Sidebar */}
         <div
           className={`${
-            activeTab === "sidebar" ? "block" : "hidden"
-          } lg:block lg:sticky lg:top-20 lg:self-start h-[calc(100vh-140px)] flex flex-col`}
+            activeTab === "sidebar" ? "flex" : "hidden"
+          } lg:flex lg:sticky lg:top-20 lg:self-start h-[calc(100vh-140px)] flex-col`}
         >
           <div className="flex bg-primary/5 rounded-t-xl p-1 gap-1 border border-primary/10 border-b-0 shrink-0">
             <button
@@ -177,7 +177,7 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
             </button>
           </div>
           
-          <div className="bg-surface rounded-b-xl border border-primary/10 shadow-sm flex-1 overflow-hidden flex flex-col">
+          <div className="flex-1 overflow-hidden flex flex-col">
             {sidebarTab === "keywords" && (
               <KeywordPanel
                 modifications={pendingModifications}
