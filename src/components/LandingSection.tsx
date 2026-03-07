@@ -254,7 +254,7 @@ const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode; titl
         hidden: { opacity: 0, y: 50 },
         visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } },
       }}
-      className="bg-white/[0.03] backdrop-blur-sm border border-white/10 rounded-2xl p-8 flex flex-col gap-4 hover:bg-white/[0.05] hover:-translate-y-1 transition-all duration-300 group shadow-lg"
+      className="bg-white/[0.03] backdrop-blur-sm border border-rose-500/10 rounded-2xl p-8 flex flex-col gap-4 hover:bg-white/[0.05] hover:border-rose-500/40 hover:-translate-y-1 transition-all duration-300 group shadow-lg"
     >
       <div className="w-12 h-12 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center p-2 shadow-[0_0_15px_rgba(244,63,94,0.15)] group-hover:shadow-[0_0_20px_rgba(244,63,94,0.25)] transition-shadow">
         {icon}
