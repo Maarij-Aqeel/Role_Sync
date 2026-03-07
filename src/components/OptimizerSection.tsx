@@ -3,6 +3,7 @@
 import React, { useRef, useState } from "react";
 import { ScoreDisplay } from "./ScoreDisplay";
 import { KeywordPanel, Modification } from "./KeywordPanel";
+import { FeedbackPanel } from "./feedback/FeedbackPanel";
 import { ResumeEditor, ResumeEditorHandle } from "./ResumeEditor";
 import { Download, ArrowLeft } from "lucide-react";
 
@@ -31,7 +32,8 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
     result.modifications
   );
   const [injectedModifications, setInjectedModifications] = useState<Modification[]>([]);
-  const [activeTab, setActiveTab] = useState<"editor" | "keywords">("editor");
+  const [activeTab, setActiveTab] = useState<"editor" | "sidebar">("editor");
+  const [sidebarTab, setSidebarTab] = useState<"keywords" | "feedback">("keywords");
   const [isExporting, setIsExporting] = useState(false);
 
   const handleModificationClick = (modObj: Modification) => {
@@ -126,14 +128,14 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
           Resume Editor
         </button>
         <button
-          onClick={() => setActiveTab("keywords")}
+          onClick={() => setActiveTab("sidebar")}
           className={`flex-1 py-3 text-sm font-semibold text-center transition-colors ${
-            activeTab === "keywords"
+            activeTab === "sidebar"
               ? "text-accent border-b-2 border-accent"
               : "text-primary/50"
           }`}
         >
-          Keywords ({pendingModifications.length})
+          Analysis Tools
         </button>
       </div>
 
@@ -141,22 +143,50 @@ export const OptimizerSection: React.FC<OptimizerSectionProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 flex-1">
         {/* Left: Resume Editor */}
         <div
-          className={`${activeTab === "editor" ? "block" : "hidden"} lg:block`}
+          className={`${activeTab === "editor" ? "block" : "hidden"} lg:block min-h-[500px] flex flex-col`}
         >
           <ResumeEditor ref={editorRef} initialContent={result.resumeHTML} />
         </div>
 
-        {/* Right: Keywords Panel */}
+        {/* Right: Analysis Sidebar */}
         <div
           className={`${
-            activeTab === "keywords" ? "block" : "hidden"
-          } lg:block lg:sticky lg:top-20 lg:self-start`}
+            activeTab === "sidebar" ? "block" : "hidden"
+          } lg:block lg:sticky lg:top-20 lg:self-start h-[calc(100vh-140px)] flex flex-col`}
         >
-          <KeywordPanel
-            modifications={pendingModifications}
-            injectedModifications={injectedModifications}
-            onModificationClick={handleModificationClick}
-          />
+          <div className="flex bg-primary/5 rounded-t-xl p-1 gap-1 border border-primary/10 border-b-0 shrink-0">
+            <button
+              onClick={() => setSidebarTab("keywords")}
+              className={`flex-1 py-2 text-xs font-bold text-center rounded-lg transition-all ${
+                sidebarTab === "keywords"
+                  ? "bg-surface text-accent shadow-sm"
+                  : "text-primary/60 hover:text-primary hover:bg-primary/5"
+              }`}
+            >
+              Missing Skills
+            </button>
+            <button
+              onClick={() => setSidebarTab("feedback")}
+              className={`flex-1 py-2 text-xs font-bold text-center rounded-lg transition-all ${
+                sidebarTab === "feedback"
+                  ? "bg-surface text-accent shadow-sm"
+                  : "text-primary/60 hover:text-primary hover:bg-primary/5"
+              }`}
+            >
+              AI Feedback
+            </button>
+          </div>
+          
+          <div className="bg-surface rounded-b-xl border border-primary/10 shadow-sm flex-1 overflow-hidden flex flex-col">
+            {sidebarTab === "keywords" && (
+              <KeywordPanel
+                modifications={pendingModifications}
+                injectedModifications={injectedModifications}
+                onModificationClick={handleModificationClick}
+              />
+            )}
+            {sidebarTab === "feedback" && <FeedbackPanel />}
+          </div>
         </div>
       </div>
     </div>
