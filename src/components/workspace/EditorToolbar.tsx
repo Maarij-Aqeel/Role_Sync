@@ -13,6 +13,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
   const [isGeneratingLatex, setIsGeneratingLatex] = useState(false);
   const [latexCode, setLatexCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copiedRichText, setCopiedRichText] = useState(false);
 
   // Disable TipTap read-only mode during generation
   useEffect(() => {
@@ -90,8 +91,33 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
     }
   };
 
+  const handleCopyRichText = async () => {
+    if (!editor) return;
+    try {
+      const htmlContent = editor.getHTML();
+      const textContent = editor.getText();
+      const blobHtml = new Blob([htmlContent], { type: "text/html" });
+      const blobText = new Blob([textContent], { type: "text/plain" });
+      
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          "text/html": blobHtml,
+          "text/plain": blobText,
+        }),
+      ]);
+      setCopiedRichText(true);
+      setTimeout(() => setCopiedRichText(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy rich text", err);
+      // Fallback
+      await navigator.clipboard.writeText(editor.getText());
+      setCopiedRichText(true);
+      setTimeout(() => setCopiedRichText(false), 2000);
+    }
+  };
+
   return (
-    <div className="sticky top-4 z-10 w-full max-w-[800px] mx-auto bg-slate-900/80 backdrop-blur-md border border-slate-700/60 rounded-lg px-4 py-3 flex justify-between items-center shadow-xl">
+    <div className="w-full bg-slate-900/80 backdrop-blur-md border border-slate-700/60 rounded-lg px-4 py-3 flex justify-between items-center shadow-xl">
       <div className="flex items-center gap-2">
         <button
           onClick={handleRegenerate}
@@ -104,6 +130,27 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
       </div>
 
       <div className="flex items-center gap-2">
+        <button
+          onClick={handleCopyRichText}
+          className={`group flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-bold transition-all shadow-sm ${
+            copiedRichText 
+              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" 
+              : "bg-surface border border-primary/10 text-primary hover:border-primary/30"
+          }`}
+        >
+          {copiedRichText ? (
+            <>
+              <Check size={16} className="text-emerald-400 group-hover:scale-110 transition-transform" />
+              Copied!
+            </>
+          ) : (
+            <>
+              <Copy size={16} className="group-hover:scale-110 transition-transform" />
+              Copy Resume
+            </>
+          )}
+        </button>
+
         <AnimatePresence mode="popLayout">
           {latexCode && (
             <motion.button

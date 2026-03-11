@@ -70,6 +70,12 @@ EVALUATION TASKS
    - The goal is to help the candidate optimize their resume for the target role
    - Reduce manual editing by suggesting precise improvements.
 
+4. Generate Constructive Feedback
+   - Act as a hiring manager and provide an 'interviewerCritique' with a summary and tone.
+   - Analyze 'repetitiveWords' (e.g., overusing 'managed', 'developed') with count and better alternatives.
+   - Provide 'sectionAnalysis' for core sections (e.g., experience, education) indicating if they pass or need work.
+   - Select 'uiHighlights' to point out exactly which phrases in the resume should be rewritten, with a reason and suggested rewrite.
+
 --------------------------------------------------
 CRITICAL REWRITING RULES
 --------------------------------------------------
@@ -108,19 +114,41 @@ You MUST return a valid JSON object strictly matching the following schema.
 
 Do NOT wrap the response in markdown (no \`\`\`json).
 
-{
   "atsScore": 85,
   "domainScore": 72,
-  "missingSkills": [
+  "modifications": [
     {
-      "keyword": "Exact missing skill (example: Microservices)",
       "type": "hard_skill | concept",
-      "targetSection": "Specific job title or section this belongs in",
-      "originalText": "The exact original sentence from the resume to be replaced",
-      "rewrittenText": "The fully rewritten sentence integrating the keyword naturally",
-      "rationale": "Brief recruiter explanation of why this keyword matters for this JD"
+      "keyword_added": "Microservices",
+      "target_section": "Experience",
+      "original_text": "The exact original sentence from the resume to be replaced",
+      "rewritten_text": "The fully rewritten sentence integrating the keyword naturally"
     }
-  ]
+  ],
+  "feedback": {
+    "interviewerCritique": {
+      "summary": "Strong technical background but lacks business impact metrics.",
+      "tone": "Constructive"
+    },
+    "repetitiveWords": [
+      {
+        "word": "developed",
+        "count": 5,
+        "impact": "medium",
+        "betterAlternatives": ["engineered", "architected"]
+      }
+    ],
+    "sectionAnalysis": {
+      "experience": { "status": "needs_work", "message": "Add more quantifiable achievements." }
+    },
+    "uiHighlights": [
+      {
+        "exactPhrase": "responsible for",
+        "reason": "Passive voice",
+        "suggestedRewrite": "spearheaded"
+      }
+    ]
+  }
 }
 
 --------------------------------------------------
@@ -158,8 +186,51 @@ ${jdText.substring(0, 15000)}
                 required: ["type", "keyword_added", "target_section", "original_text", "rewritten_text"],
               },
             },
+            feedback: {
+              type: Type.OBJECT,
+              properties: {
+                interviewerCritique: {
+                  type: Type.OBJECT,
+                  properties: {
+                    summary: { type: Type.STRING },
+                    tone: { type: Type.STRING }
+                  },
+                  required: ["summary", "tone"]
+                },
+                repetitiveWords: {
+                  type: Type.ARRAY,
+                  items: {
+                    type: Type.OBJECT,
+                    properties: {
+                      word: { type: Type.STRING },
+                      count: { type: Type.INTEGER },
+                      impact: { type: Type.STRING },
+                      betterAlternatives: { type: Type.ARRAY, items: { type: Type.STRING } }
+                    },
+                    required: ["word", "count", "impact", "betterAlternatives"]
+                  }
+                },
+                sectionAnalysis: {
+                  type: Type.OBJECT, // We will treat it as a generic object (Record<string, { status, message }>)
+                  description: "Object mapping section names like 'experience' to analysis results"
+                },
+                uiHighlights: {
+                  type: Type.ARRAY,
+                  items: {
+                    type: Type.OBJECT,
+                    properties: {
+                      exactPhrase: { type: Type.STRING },
+                      reason: { type: Type.STRING },
+                      suggestedRewrite: { type: Type.STRING }
+                    },
+                    required: ["exactPhrase", "reason", "suggestedRewrite"]
+                  }
+                }
+              },
+              required: ["interviewerCritique", "repetitiveWords", "sectionAnalysis", "uiHighlights"]
+            }
           },
-          required: ["ats_score", "domain_score", "modifications"],
+          required: ["ats_score", "domain_score", "modifications", "feedback"],
         },
       },
     });
@@ -184,6 +255,7 @@ ${jdText.substring(0, 15000)}
       ats_score: analysisResult.ats_score || 0,
       domain_score: analysisResult.domain_score || 0,
       modifications: analysisResult.modifications || [],
+      feedback: analysisResult.feedback || null,
       resumeHTML: formattedHtml,
       originalResumeText: resumeText,
     });
