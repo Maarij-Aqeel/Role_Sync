@@ -28,7 +28,7 @@ export const Navbar = () => {
         </div>
         
         <ThemeToggle />
-        <Link href="/" className="text-sm font-medium text-primary/70 hover:text-primary transition-colors">
+        <Link href="/how-it-works" className="text-sm font-medium text-primary/70 hover:text-primary transition-colors">
           How it Works
         </Link>
         <Link href="/setup" className="text-sm font-medium bg-accent text-surface px-4 py-2 rounded-lg hover:bg-accent/90 transition-colors">

@@ -29,6 +29,21 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
       {/* Massive Centered Blurred Radial Gradient */}
       <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-rose-500/10 rounded-full blur-3xl -z-10" />
 
+      {/* Animated Grid Background starting below CTA */}
+      <div 
+        className="absolute left-0 right-0 bottom-0 pointer-events-none -z-10"
+        style={{
+          top: '400px', // Starts approximately below the hero section text
+          backgroundImage: `
+            linear-gradient(to right, rgba(128, 128, 128, 0.1) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(128, 128, 128, 0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px',
+          maskImage: 'linear-gradient(to bottom, transparent, black 15%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 15%)'
+        }}
+      />
+
       {/* Hero Section */}
       <motion.div
         initial="hidden"

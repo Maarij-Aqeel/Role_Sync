@@ -30,22 +30,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const prompt = `You are an expert Technical Recruiter and Senior Engineering Hiring Manager at a fast-paced AI startup. 
-Your task is to write a highly compelling, concise, and metric-driven Cover Letter.
-You will write it exactly as it should appear physically, including placeholders for the header.
+const prompt = `You are an expert Technical Recruiter and Senior Engineering Hiring Manager at a fast-paced AI startup. 
+Your task is to write a highly compelling, concise, and metric-driven Cover Letter based on the provided resume and job description.
 
 ## Core Directives:
-1. NO FLUFF: Absolutely do not use generic opening phrases like "I am writing with immense enthusiasm" or "I am thrilled to apply." Get straight to the point.
-2. LENGTH: Keep the entire letter under 300 words. Engineers and recruiters skim, so optimize for high-impact readability.
-3. NO SKILL GAPS: Do not mention technologies the candidate does not know or is "eager to learn." Focus entirely on the immediate value they bring on day one.
-4. FORMATTING: Return the generated cover letter AS PURE HTML text. Do NOT wrap it in a markdown block. Use semantic HTML like <p>, <ul>, <li>, <strong>, and <br/> where appropriate so it renders cleanly in a rich-text editor (TipTap).
+1. NO FLUFF: Absolutely no generic opening phrases (e.g., "I am writing with immense enthusiasm", "I am thrilled"). Start directly with the value proposition.
+2. LENGTH & TONE: Keep the entire letter under 300 words. The tone must be confident, professional, and highly direct. Engineers skim, so optimize for high-impact readability.
+3. FACTUAL ONLY: Do not invent or hallucinate metrics, projects, or skills. Focus entirely on the immediate value they bring based strictly on the provided resume. 
+4. STRICT FORMATTING: Return the generated cover letter AS PURE, RAW HTML. Do NOT wrap the output in markdown code blocks (do not use \`\`\`html or \`\`\`). The first character of your response must be a valid HTML tag. Use semantic HTML (<p>, <ul>, <li>, <strong>, <br/>) optimized for a rich-text editor.
 
 ## Required Structure:
-1. Header: Standard business letter placeholders (Date, Hiring Manager Name, Company, Address).
-2. The Hook (1 short paragraph): State the target role, mention one specific thing about the company's mission from the JD, and state the candidate's core value proposition (e.g., "I build scalable, sub-100ms AI pipelines...").
-3. The Highlight Reel (3-4 Bullet Points): Extract the top 3-4 achievements from the candidate's resume that directly map to the Job Description's hardest requirements. You MUST prioritize bullet points that include hard metrics (e.g., latency reduction, user count, deployment speed) and the specific technical stack used (e.g., FastAPI, Redis, LangChain). Use <strong> tags to emphasize the metrics and tech stack.
-4. The Culture Fit (1 short paragraph): Briefly tie the candidate's problem-solving approach and technical agility to the company's goals.
-5. Call to Action: A single, confident closing sentence pointing to an interview, followed by the sign-off.
+1. Header: Use the candidate's actual name and contact info from the resume. Use exact bracketed placeholders for the employer: [Date], [Hiring Manager Name], [Company Name], [Company Address]. Use <br/> tags for line breaks here.
+2. The Hook (1 short <p>): State the target role, mention one specific thing about the company's mission/product from the JD, and state the candidate's core value proposition.
+3. The Highlight Reel (1 <ul> with 3-4 <li>): Extract the top 3-4 achievements from the resume that directly solve the hardest technical requirements in the JD. Prioritize bullet points with hard metrics. Use <strong> to highlight metrics and the specific technical stack.
+4. The Culture Fit (1 short <p>): Briefly tie the candidate's problem-solving approach to the company's goals.
+5. Call to Action & Sign-off (1 short <p>): A single, confident closing sentence pointing to an interview, followed by "Sincerely,<br/>[Candidate Name from Resume]".
 
 ## Candidate Resume Information:
 ${originalResumeText.substring(0, 10000)}
