@@ -1,32 +1,68 @@
+/* globals.css - Complete Theme Refactor */
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
   --color-primary: var(--primary);
+  --color-primary-muted: var(--primary-muted);
   --color-accent: var(--accent);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+/* Light Mode - Clean Professional */
 :root {
-  --background: #F4F9F9;
+  /* Canvas - Soft warm gray for eye comfort */
+  --background: #F8F7F4;
+  /* Cards and panels - Pure white with subtle warmth */
   --surface: #FFFFFF;
-  --primary: #2D4059;
-  --accent: #EA5455;
+  --surface-elevated: #FAFAF8;
+  /* Primary - Deep sophisticated navy */
+  --primary: #1E293B;
+  --primary-muted: #475569;
+  /* Accent - Confident coral/salmon for CTAs */
+  --accent: #E85D4E;
+  --accent-subtle: #FEF2F1;
+  /* Text hierarchy */
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+  /* Subtle borders */
+  --border: #E2E8F0;
 }
 
+/* Dark Mode - Deep Focus */
 .dark {
-  --background: #0f172a;
-  --surface: #1e293b;
-  --primary: #f8fafc;
-  --accent: #f87171;
+  /* Canvas - Rich dark slate */
+  --background: #0F172A;
+  /* Panels - Elevated dark */
+  --surface: #1E293B;
+  --surface-elevated: #334155;
+  /* Primary - Bright contrast */
+  --primary: #F1F5F9;
+  --primary-muted: #94A3B8;
+  /* Accent - Vibrant coral */
+  --accent: #FB7185;
+  --accent-subtle: #451A1A;
+  /* Text hierarchy */
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  /* Borders */
+  --border: #334155;
 }
 
 body {
   background: var(--background);
-  color: var(--primary);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
   @apply antialiased transition-colors duration-300;
 }

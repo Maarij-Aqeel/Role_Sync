@@ -13,7 +13,7 @@ export default function HomePage() {
       <Navbar />
 
       <main className="flex-1 flex items-center justify-center py-8">
-        <LandingSection onStart={() => router.push("/upload")} />
+        <LandingSection onStart={() => router.push("/setup")} />
       </main>
 
       <footer className="py-4 text-center text-xs text-primary/40 border-t border-primary/10">

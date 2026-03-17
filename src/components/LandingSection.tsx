@@ -25,20 +25,24 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
   };
 
   return (
-    <div className="w-full relative flex flex-col items-center justify-start pt-24 pb-32 px-4 overflow-hidden bg-[#0a0f1c]">
-      {/* Background Grid Pattern (Opacity 5%) */}
-      <div 
-        className="absolute inset-0 z-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
-          backgroundSize: '40px 40px',
-          maskImage: 'radial-gradient(circle at center, black 10%, transparent 80%)',
-          WebkitMaskImage: 'radial-gradient(circle at center, black 10%, transparent 80%)'
-        }}
-      />
-      
+    <div className="w-full relative flex flex-col items-center justify-start pt-24 pb-32 px-4 overflow-hidden">
       {/* Massive Centered Blurred Radial Gradient */}
       <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-rose-500/10 rounded-full blur-3xl -z-10" />
+
+      {/* Animated Grid Background starting below CTA */}
+      <div 
+        className="absolute left-0 right-0 bottom-0 pointer-events-none -z-10"
+        style={{
+          top: '400px', // Starts approximately below the hero section text
+          backgroundImage: `
+            linear-gradient(to right, rgba(128, 128, 128, 0.1) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(128, 128, 128, 0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px',
+          maskImage: 'linear-gradient(to bottom, transparent, black 15%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 15%)'
+        }}
+      />
 
       {/* Hero Section */}
       <motion.div
@@ -50,7 +54,7 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
         {/* Top Badge ("The Next Generation ATS Optimizer") */}
         <motion.div 
           variants={itemVariants} 
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white text-sm font-medium mb-8 backdrop-blur-md shadow-lg"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary text-sm font-medium mb-8 backdrop-blur-md shadow-lg"
         >
           <Sparkles size={16} className="text-[#EA5455] drop-shadow-[0_0_8px_rgba(234,84,85,0.8)]" />
           <span>The Next Generation ATS Optimizer</span>
@@ -59,7 +63,7 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
         {/* Main Heading */}
         <motion.h1 
           variants={itemVariants} 
-          className="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 leading-[1.1] tracking-tight text-white"
+          className="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 leading-[1.1] tracking-tight text-primary"
         >
           Your Resume,<br className="hidden md:block"/>
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#EA5455] to-[#ff8a8a]">
@@ -70,7 +74,7 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
         {/* Subheadline */}
         <motion.p 
           variants={itemVariants} 
-          className="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl leading-relaxed mx-auto font-medium"
+          className="text-lg md:text-xl text-primary/70 mb-10 max-w-2xl leading-relaxed mx-auto font-medium"
         >
           Don't let the algorithm reject you. RoleSync AI simulates enterprise ATS systems to score your resume against job descriptions, injecting critical domain keywords so you never miss an interview.
         </motion.p>
@@ -97,17 +101,17 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
                transition: { duration: 0.8, ease: "easeOut" } 
              }
           }}
-          className="mt-20 w-full max-w-4xl aspect-video rounded-2xl bg-slate-800/50 backdrop-blur-md border border-white/10 overflow-hidden relative shadow-2xl shadow-rose-500/15"
+          className="mt-20 w-full max-w-4xl aspect-video rounded-2xl bg-surface/50 backdrop-blur-md border border-primary/10 overflow-hidden relative shadow-2xl shadow-rose-500/15"
           animate={{ y: [0, -15, 0] }}
           transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
         >
           {/* Internal Dashboard Mock Styling */}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 to-slate-800/20 flex flex-col">
-             <div className="h-10 border-b border-white/10 flex items-center px-4 gap-2 bg-slate-900/80 shrink-0 backdrop-blur-xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-surface to-background/50 flex flex-col">
+             <div className="h-10 border-b border-primary/10 flex items-center px-4 gap-2 bg-surface/80 shrink-0 backdrop-blur-xl">
                 <div className="w-3 h-3 rounded-full bg-red-500/80 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
                 <div className="w-3 h-3 rounded-full bg-amber-500/80 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
                 <div className="w-3 h-3 rounded-full bg-emerald-500/80 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                <div className="ml-4 text-xs font-medium text-slate-500 font-mono hidden sm:block">rolesync-ai.sh</div>
+                <div className="ml-4 text-xs font-medium text-primary/50 font-mono hidden sm:block">rolesync-ai.sh</div>
              </div>
              
              {/* 2-Column Dashboard Layout */}
@@ -138,7 +142,7 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
                </div>
 
                {/* Right: TipTap Editor / Optimized Output UI */}
-               <div className="flex-[1.2] bg-[#0f172a] rounded-xl border border-rose-500/20 p-6 shadow-[0_0_40px_rgba(244,63,94,0.05)] flex flex-col gap-4 overflow-hidden text-slate-300 font-mono text-[13px] leading-relaxed relative">
+               <div className="flex-[1.2] bg-surface rounded-xl border border-rose-500/20 p-6 shadow-[0_0_40px_rgba(244,63,94,0.05)] flex flex-col gap-4 overflow-hidden text-primary/80 font-mono text-[13px] leading-relaxed relative">
                  {/* Glowing Editor background blob */}
                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] bg-rose-500/10 blur-[80px] rounded-full z-0 pointer-events-none" />
                  
@@ -147,11 +151,11 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
                      <Target size={12} /> Optimization Engine
                    </div>
                    
-                   <p className="mb-4 text-slate-400">
-                     <span className="text-slate-500">const</span> <span className="text-[#a855f7]">ResumeEditor</span> = <span className="text-slate-500">() {"=>"}</span> {"{"}
+                   <p className="mb-4 text-primary/60">
+                     <span className="text-primary/50">const</span> <span className="text-[#a855f7]">ResumeEditor</span> = <span className="text-primary/50">() {"=>"}</span> {"{"}
                    </p>
                    
-                   <div className="pl-4 border-l-2 border-slate-800 space-y-3">
+                   <div className="pl-4 border-l-2 border-primary/20 space-y-3">
                      <p>
                        Spearheaded the migration of legacy monolith into 
                        <mark className="bg-rose-500/20 text-rose-300 px-1.5 py-0.5 mx-1 rounded border border-rose-500/30 animate-pulse font-semibold">robust microservices</mark>
@@ -165,9 +169,9 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
                      </p>
                      
                      <div className="space-y-2 mt-6 opacity-30">
-                       <div className="w-full h-2 bg-slate-700 rounded" />
-                       <div className="w-[85%] h-2 bg-slate-700 rounded" />
-                       <div className="w-[90%] h-2 bg-slate-700 rounded" />
+                       <div className="w-full h-2 bg-primary rounded" />
+                       <div className="w-[85%] h-2 bg-primary rounded" />
+                       <div className="w-[90%] h-2 bg-primary rounded" />
                      </div>
                    </div>
                  </div>
@@ -186,7 +190,7 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
         className="w-full max-w-6xl"
       >
         <div className="text-center mb-16">
-          <motion.h2 variants={itemVariants} className="text-3xl font-bold text-white mb-4 tracking-tight">Why use RoleSync AI?</motion.h2>
+          <motion.h2 variants={itemVariants} className="text-3xl font-bold text-primary mb-4 tracking-tight">Why use RoleSync AI?</motion.h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -219,16 +223,16 @@ export const LandingSection: React.FC<LandingSectionProps> = ({ onStart }) => {
         whileInView="visible"
         viewport={{ once: true }}
         variants={containerVariants}
-        className="mt-32 w-full max-w-4xl bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-[2.5rem] p-12 text-center relative overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]"
+        className="mt-32 w-full max-w-4xl bg-surface/80 backdrop-blur-xl border border-primary/10 rounded-[2.5rem] p-12 text-center relative overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]"
       >
         {/* Soft radial gradient glow from center */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.12),transparent_60%)] pointer-events-none" />
 
         <div className="relative z-10">
-          <motion.h3 variants={itemVariants} className="text-3xl md:text-5xl font-extrabold mb-6 text-white tracking-tight">
+          <motion.h3 variants={itemVariants} className="text-3xl md:text-5xl font-extrabold mb-6 text-primary tracking-tight">
             Stop guessing what the <span className="text-[#EA5455]">ATS</span> wants.
           </motion.h3>
-          <motion.p variants={itemVariants} className="text-lg text-slate-300 max-w-xl mx-auto mb-10 leading-relaxed">
+          <motion.p variants={itemVariants} className="text-lg text-primary/70 max-w-xl mx-auto mb-10 leading-relaxed">
             Join thousands of candidates breaking through the automated screening filters using purely algorithmic semantic matching.
           </motion.p>
           <motion.button
@@ -254,13 +258,13 @@ const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode; titl
         hidden: { opacity: 0, y: 50 },
         visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } },
       }}
-      className="bg-white/[0.03] backdrop-blur-sm border border-accent/30 rounded-2xl p-8  flex flex-col gap-4 hover:bg-white/[0.05] hover:border-accent/70 hover:-translate-y-2 transition-all duration-300 group shadow-lg"
+      className="bg-surface backdrop-blur-sm border border-primary/10 rounded-2xl p-8 flex flex-col gap-4 hover:bg-primary/5 hover:border-accent/50 hover:-translate-y-2 transition-all duration-300 group shadow-lg"
     >
       <div className="w-12 h-12 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center p-2 shadow-[0_0_15px_rgba(244,63,94,0.15)] group-hover:shadow-[0_0_20px_rgba(244,63,94,0.25)] transition-shadow">
         {icon}
       </div>
-      <h3 className="text-xl font-bold text-white mt-1">{title}</h3>
-      <p className="text-slate-400 text-[15px] leading-loose font-medium">{description}</p>
+      <h3 className="text-xl font-bold text-primary mt-1">{title}</h3>
+      <p className="text-primary/70 text-[15px] leading-loose font-medium">{description}</p>
     </motion.div>
   );
 };

@@ -18,20 +18,20 @@ export const Navbar = () => {
             Tools <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-200" />
           </button>
           <div className="absolute top-full right-0 mt-0 w-48 bg-surface border border-primary/10 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden transform origin-top-right scale-95 group-hover:scale-100">
-            <Link href="/upload" className="block px-4 py-3 text-sm text-primary/80 hover:bg-accent/5 hover:text-accent transition-colors">
+            <Link href="/tools/optimizer" className="block px-4 py-3 text-sm text-primary/80 hover:bg-accent/5 hover:text-accent transition-colors">
               Resume Optimizer
             </Link>
-            <Link href="/workspace/cover-letter" className="block px-4 py-3 text-sm text-primary/80 hover:bg-accent/5 hover:text-accent transition-colors border-t border-primary/5">
+            <Link href="/tools/cover-letter" className="block px-4 py-3 text-sm text-primary/80 hover:bg-accent/5 hover:text-accent transition-colors border-t border-primary/5">
               Cover Letter Writer
             </Link>
           </div>
         </div>
         
         <ThemeToggle />
-        <Link href="/upload" className="text-sm font-medium text-primary/70 hover:text-primary transition-colors">
+        <Link href="/how-it-works" className="text-sm font-medium text-primary/70 hover:text-primary transition-colors">
           How it Works
         </Link>
-        <Link href="/upload" className="text-sm font-medium bg-accent text-surface px-4 py-2 rounded-lg hover:bg-accent/90 transition-colors">
+        <Link href="/setup" className="text-sm font-medium bg-accent text-surface px-4 py-2 rounded-lg hover:bg-accent/90 transition-colors">
           Get Started
         </Link>
       </div>
