@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect, forwardRef, useImperativeHandle } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, Extension } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
@@ -36,7 +36,37 @@ export interface ResumeEditorHandle {
   getHTML: () => string;
 }
 
-// Custom TipTap Mark for Dynamic Highlights
+// 1. Extension: Stops TipTap from aggressively stripping out layout styles
+const PreserveFormatting = Extension.create({
+  name: 'preserveFormatting',
+  addGlobalAttributes() {
+    return [
+      {
+        types: ['paragraph', 'heading', 'span', 'div'],
+        attributes: {
+          style: {
+            default: null,
+            parseHTML: element => element.getAttribute('style'),
+            renderHTML: attributes => {
+              if (!attributes.style) return {};
+              return { style: attributes.style };
+            },
+          },
+          class: {
+            default: null,
+            parseHTML: element => element.getAttribute('class'),
+            renderHTML: attributes => {
+              if (!attributes.class) return {};
+              return { class: attributes.class };
+            },
+          }
+        },
+      },
+    ]
+  },
+});
+
+// 2. Mark: Custom TipTap Mark for Dynamic Highlights
 const SuggestionHighlight = Mark.create({
   name: 'suggestionHighlight',
   addAttributes() {
@@ -58,7 +88,8 @@ const SuggestionHighlight = Mark.create({
     return [
       'mark',
       mergeAttributes(HTMLAttributes, {
-        class: 'bg-yellow-200/70 border-b-[2px] border-yellow-400 text-gray-900 cursor-pointer hover:bg-yellow-300 transition-colors rounded-sm py-0.5 px-0.5',
+        // Added !important flags to ensure Tailwind prose doesn't overwrite the colors
+        class: '!bg-yellow-300/80 !border-b-[2px] !border-yellow-500 !text-gray-900 cursor-pointer hover:!bg-yellow-400 transition-colors rounded-sm py-[1px] px-[2px]',
       }),
       0,
     ];
@@ -82,7 +113,8 @@ export const PaperResumeEditor = forwardRef<ResumeEditorHandle, PaperResumeEdito
         TextAlign.configure({
           types: ['heading', 'paragraph'],
         }),
-        SuggestionHighlight, // Inject the new custom mark
+        PreserveFormatting,
+        SuggestionHighlight, 
       ],
       content,
       immediatelyRender: false,
@@ -102,46 +134,67 @@ export const PaperResumeEditor = forwardRef<ResumeEditorHandle, PaperResumeEdito
       }
     }, [content, editor]);
 
-    // Dynamically apply highlights to the text
+    // Cross-Node Highlight Applicator
     useEffect(() => {
-      if (!editor || !highlights) return;
+      if (!editor || !highlights || highlights.length === 0) return;
 
-      // Clear existing highlights
       editor.commands.unsetMark('suggestionHighlight');
 
-      if (highlights.length === 0) return;
-
-      const { tr } = editor.state;
+      const { doc, tr } = editor.state;
       let modified = false;
 
+      // Step A: Build a pure text string of the whole document AND a map of its positions
+      let textContent = "";
+      const posMap: number[] = [];
+
+      doc.descendants((node, pos) => {
+        if (node.isText && node.text) {
+          for (let i = 0; i < node.text.length; i++) {
+            textContent += node.text[i];
+            posMap.push(pos + i);
+          }
+        } else if (node.isBlock) {
+          textContent += "\n";
+          posMap.push(pos);
+        }
+      });
+
+      // Step B: Search the pure text, then map matches back to exact DOM positions
       highlights.forEach((h, idx) => {
         if (!h.exactPhrase) return;
         
-        // Escape regex characters so standard text matches perfectly
-        const safePhrase = h.exactPhrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        // Normalize spaces in case PDF extraction created weird line breaks
+        const normalizedPhrase = h.exactPhrase.replace(/\s+/g, ' ').trim();
+        if (!normalizedPhrase) return;
+
+        // Escape regex chars but allow flexible whitespace matching (spaces or newlines)
+        const safePhrase = normalizedPhrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/ /g, '(?:\\s|\\n)+');
         const regex = new RegExp(safePhrase, 'gi');
 
-        editor.state.doc.descendants((node, pos) => {
-          if (node.isText && node.text) {
-            let match;
-            while ((match = regex.exec(node.text)) !== null) {
-              const from = pos + match.index;
-              const to = from + match[0].length;
-              tr.addMark(
-                from, 
-                to, 
-                editor.schema.marks.suggestionHighlight.create({ highlightIndex: idx })
-              );
-              modified = true;
-            }
+        let match;
+        while ((match = regex.exec(textContent)) !== null) {
+          const startIndex = match.index;
+          const endIndex = match.index + match[0].length - 1;
+          
+          const from = posMap[startIndex];
+          const to = posMap[endIndex] + 1; // +1 to capture the final character
+
+          if (from !== undefined && to !== undefined) {
+            tr.addMark(
+              from, 
+              to, 
+              editor.schema.marks.suggestionHighlight.create({ highlightIndex: idx })
+            );
+            modified = true;
           }
-        });
+        }
       });
 
       if (modified) {
         editor.view.dispatch(tr);
       }
-    }, [editor, highlights, content]);
+      // Removed 'content' from dependency array to prevent infinite re-render loops
+    }, [editor, highlights]); 
 
     // Handle clicks on highlighted text
     const handleEditorClick = (e: React.MouseEvent) => {
@@ -270,7 +323,7 @@ export const PaperResumeEditor = forwardRef<ResumeEditorHandle, PaperResumeEdito
           className="flex-1 overflow-auto flex justify-center p-8 pb-32"
           onClick={handleEditorClick}
         >
-          {/* Dynamic Scaling Wrapper - This fixes the scrollbar and page length issue */}
+          {/* Dynamic Scaling Wrapper */}
           <div
             style={{
               width: A4_WIDTH_PX * currentZoom,
@@ -290,11 +343,15 @@ export const PaperResumeEditor = forwardRef<ResumeEditorHandle, PaperResumeEdito
             >
               <EditorContent 
                 editor={editor} 
-                className="p-[48px] h-full outline-none prose prose-slate max-w-none 
-                  prose-p:leading-snug prose-p:my-1.5 
-                  prose-h1:text-3xl prose-h1:font-bold prose-h1:mb-3 prose-h1:text-gray-900 
-                  prose-h2:text-xl prose-h2:font-semibold prose-h2:mt-4 prose-h2:mb-2 prose-h2:text-gray-800 prose-h2:border-b prose-h2:border-gray-200 prose-h2:pb-1 
-                  prose-ul:list-disc prose-ul:ml-6 prose-li:my-0.5"
+                className="p-[48px] h-full outline-none prose max-w-none text-gray-800
+                  prose-p:my-1 prose-p:leading-[1.4] prose-p:text-[11pt]
+                  prose-headings:m-0 prose-headings:text-gray-900
+                  prose-h1:text-[24pt] prose-h1:font-bold prose-h1:uppercase prose-h1:tracking-wider prose-h1:mb-4 prose-h1:text-center
+                  prose-h2:text-[14pt] prose-h2:font-bold prose-h2:uppercase prose-h2:border-b-[1.5px] prose-h2:border-gray-800 prose-h2:mt-5 prose-h2:mb-2 prose-h2:pb-1
+                  prose-h3:text-[12pt] prose-h3:font-semibold prose-h3:mt-2 prose-h3:mb-1
+                  prose-ul:my-1 prose-ul:list-disc prose-ul:pl-5
+                  prose-li:my-0.5 prose-li:leading-[1.4] prose-li:text-[11pt]
+                  [&>*:first-child]:mt-0"
               />
             </motion.div>
           </div>
