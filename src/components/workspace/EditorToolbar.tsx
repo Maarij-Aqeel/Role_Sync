@@ -3,6 +3,7 @@ import { Editor } from "@tiptap/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RefreshCw, Code, Copy, Check } from "lucide-react";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
+import { toast } from "sonner";
 
 interface EditorToolbarProps {
   editor: Editor | null;
@@ -28,7 +29,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
     setIsRegenerating(true);
     try {
       if (!originalResumeText || !jobDescription) {
-        alert("Missing context to regenerate.");
+        toast.error("Missing context to regenerate.");
         return;
       }
       
@@ -46,7 +47,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
       }
     } catch (e) {
       console.error("Regenerate error:", e);
-      alert("Error regenerating resume.");
+      toast.error("Error regenerating resume.");
     } finally {
       setIsRegenerating(false);
     }
@@ -77,7 +78,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
       }
     } catch (e) {
       console.error(e);
-      alert("Error generating LaTeX.");
+      toast.error("Error generating LaTeX.");
     } finally {
       setIsGeneratingLatex(false);
     }

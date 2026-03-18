@@ -10,6 +10,7 @@ import {
   Sparkles,
   Briefcase
 } from "lucide-react";
+import { toast } from "sonner";
 
 interface UploadSectionProps {
   onAnalyze: (resumeFile: File | null, jdText: string) => void;
@@ -50,7 +51,7 @@ export const UploadSection: React.FC<UploadSectionProps> = ({
       if (droppedFile.type === "application/pdf") {
         setFile(droppedFile);
       } else {
-        alert("Please upload a PDF file.");
+        toast.error("Please upload a PDF file.");
       }
     }
   };
