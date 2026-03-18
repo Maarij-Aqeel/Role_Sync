@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { Navbar } from "@/components/Navbar";
+import { toast } from "sonner";
 
 export default function CoverLetterToolPage() {
   const router = useRouter();
@@ -45,7 +46,7 @@ export default function CoverLetterToolPage() {
       setCoverLetterHTML(data.coverLetterHTML);
       setContent(data.coverLetterHTML);
     } catch (error) {
-      alert("Failed to generate cover letter");
+      toast.error("Failed to generate cover letter");
     } finally {
       setIsGenerating(false);
     }

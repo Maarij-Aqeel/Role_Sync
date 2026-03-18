@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useWorkspaceStore } from "@/store/useWorkspaceStore";
 import { Navbar } from "@/components/Navbar";
+import { toast } from "sonner";
 
 export default function SetupPage() {
   const router = useRouter();
@@ -109,7 +110,7 @@ export default function SetupPage() {
       
     } catch (error) {
       console.error(error);
-      alert("Analysis failed. Please try again.");
+      toast.error("Analysis failed. Please try again.");
       setIsUploading(false);
       setIsAnalyzing(false);
       setUploadProgress(0);

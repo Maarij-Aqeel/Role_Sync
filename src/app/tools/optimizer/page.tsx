@@ -23,7 +23,8 @@ export default function OptimizerToolPage() {
     atsScore, 
     domainScore, 
     modifications,
-    feedback 
+    feedback,
+    updateModification
   } = useWorkspaceStore();
 
   const [activeTab, setActiveTab] = useState<'keywords' | 'feedback'>('keywords');
@@ -36,8 +37,14 @@ export default function OptimizerToolPage() {
   }, [optimizedResumeHTML, router]);
 
   const applyModification = (id: string) => {
-    // Logic to apply keyword injection
-    console.log("Applying modification:", id);
+    const mod = modifications.find(m => m.id === id);
+    if (!mod || mod.applied) return;
+
+    // Replace the original text with the suggested text
+    const newContent = editorContent.replace(mod.original, mod.suggested);
+    
+    setEditorContent(newContent);
+    updateModification(id, true);
   };
 
   if (!optimizedResumeHTML) return null;
@@ -150,9 +157,14 @@ export default function OptimizerToolPage() {
                         </span>
                         <button
                           onClick={() => applyModification(mod.id)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-accent hover:underline"
+                          disabled={mod.applied}
+                          className={`transition-opacity text-xs ${
+                            mod.applied 
+                              ? "text-text-muted cursor-not-allowed" 
+                              : "opacity-0 group-hover:opacity-100 text-accent hover:underline"
+                          }`}
                         >
-                          Apply
+                          {mod.applied ? "Applied" : "Apply"}
                         </button>
                       </div>
                       <p className="text-sm text-text-secondary line-through mb-1">{mod.original}</p>
